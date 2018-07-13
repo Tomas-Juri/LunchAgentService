@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LunchAgentService.Helpers;
+using LunchAgentService.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -27,6 +29,10 @@ namespace LunchAgentService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton(m => new SlackHelper(Configuration["DefaultSlackConfiguration"]));
+            services.AddSingleton(m => new RestaurantHelper(Configuration["DefaultRestaurants"]));
+            services.AddSingleton<IHostedService, SchedulerService>();
+
             // Add framework services.
             services.AddMvc();
         }

@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 using LunchAgentService.Helpers.Entities;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace LunchAgentService.Helpers
@@ -20,7 +18,7 @@ namespace LunchAgentService.Helpers
 
         public SlackHelper(string configurationJson)
         {
-            _slackConfiguration= JsonConvert.DeserializeObject<SlackSetting>(configurationJson);
+            //_slackConfiguration= JsonConvert.DeserializeObject<SlackSetting>(configurationJson);
         }
 
         public void PostMenu(List<Tuple<RestaurantSettings, List<MenuItem>>> menus)

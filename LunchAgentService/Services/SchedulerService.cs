@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using LunchAgentService.Helpers;
+using WebApplication1.Helpers;
 
-namespace LunchAgentService.Services
+namespace WebApplication1.Services
 {
     public class SchedulerService : HostedService
     {

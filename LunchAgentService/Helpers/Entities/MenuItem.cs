@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace LunchAgentService.Helpers.Entities
+namespace WebApplication1.Helpers.Entities
 {
     public class MenuItem
     {

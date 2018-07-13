@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace LunchAgentService.Helpers.Entities
+﻿namespace WebApplication1.Helpers.Entities
 {
     public struct RestaurantSettings
     {

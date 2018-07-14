@@ -24,7 +24,7 @@ namespace LunchAgentService.Services
 
             while (cancellationToken.IsCancellationRequested == false)
             {
-                if (Status == ScheduleStatus.DoneToday)
+                if (Status == ScheduleStatus.DoneToday || DateTime.Now.DayOfWeek == DayOfWeek.Sunday || DateTime.Now.DayOfWeek == DayOfWeek.Saturday)
                 {
                     // Sleep until 7:00 of next day
                     await Task.Delay(DateTime.Today.AddDays(1).AddHours(7) - DateTime.Now, cancellationToken);

@@ -3,10 +3,18 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
+  <PropertyGroup>
+    <PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
+  </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="Services\RestaurantGetterService.cs" />
     <Compile Remove="Services\SlackService.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Properties\PublishProfiles\FolderProfile1.pubxml" />
+    <None Remove="Properties\PublishProfiles\TJU-Virtual - Web Deploy.pubxml" />
   </ItemGroup>
 
   <ItemGroup>

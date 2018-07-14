@@ -19,6 +19,18 @@ namespace LunchAgentService.Helpers
 
         private SlackSetting _slackConfiguration;
 
+        public SlackSetting SlackConfiguration
+        {
+            get { return _slackConfiguration; }
+            set
+            {
+                lock (_slackConfiguration)
+                {
+                    _slackConfiguration = value;
+                }
+            }
+        }
+
         public SlackHelper(SlackSetting slackConfiguration)
         {
             this._slackConfiguration = slackConfiguration;
@@ -28,16 +40,19 @@ namespace LunchAgentService.Helpers
         {
             dynamic postRequestObject = new ExpandoObject();
 
-            postRequestObject.token = _slackConfiguration.BotToken;
-            postRequestObject.channel = _slackConfiguration.ChannelName;
-            postRequestObject.bot_id = _slackConfiguration.BotId;
-            postRequestObject.text = FormatMenuForSlack(menus);
+            lock (_slackConfiguration)
+            {
+                postRequestObject.token = _slackConfiguration.BotToken;
+                postRequestObject.channel = _slackConfiguration.ChannelName;
+                postRequestObject.bot_id = _slackConfiguration.BotId;
+                postRequestObject.text = FormatMenuForSlack(menus);
+            }
 
             var data = new StringContent(JObject.FromObject(postRequestObject).ToString(), Encoding.UTF8, "application/json");
 
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _slackConfiguration.BotToken);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", postRequestObject.BotToken);
                 var response = client.PostAsync(PostMessageUri, data);
 
                 response.Wait();
@@ -53,16 +68,19 @@ namespace LunchAgentService.Helpers
 
             dynamic postRequestObject = new ExpandoObject();
 
-            postRequestObject.token = _slackConfiguration.BotToken;
-            postRequestObject.channel = _slackConfiguration.ChannelName;
-            postRequestObject.text = FormatMenuForSlack(menus);
-            postRequestObject.ts = timestamp;
+            lock (_slackConfiguration)
+            {
+                postRequestObject.token = _slackConfiguration.BotToken;
+                postRequestObject.channel = _slackConfiguration.ChannelName;
+                postRequestObject.text = FormatMenuForSlack(menus);
+                postRequestObject.ts = timestamp;
+            }
 
             var data = new StringContent(JObject.FromObject(postRequestObject).ToString(), Encoding.UTF8, "application/json");
 
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _slackConfiguration.BotToken);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", postRequestObject.BotToken);
                 var response = client.PostAsync(UpdateMessageUri, data);
             }
         }
@@ -71,9 +89,12 @@ namespace LunchAgentService.Helpers
         {
             dynamic postRequestObject = new ExpandoObject();
 
-            postRequestObject.token = _slackConfiguration.BotToken;
-            postRequestObject.channel = _slackConfiguration.ChannelName;
-            postRequestObject.bot_id = _slackConfiguration.BotId;
+            lock (_slackConfiguration)
+            {
+                postRequestObject.token = _slackConfiguration.BotToken;
+                postRequestObject.channel = _slackConfiguration.ChannelName;
+                postRequestObject.bot_id = _slackConfiguration.BotId;
+            }
 
             var data = new StringContent(JObject.FromObject(postRequestObject).ToString(), Encoding.UTF8, "application/json");
 
@@ -82,7 +103,7 @@ namespace LunchAgentService.Helpers
 
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _slackConfiguration.BotToken);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", postRequestObject.BotToken);
 
                 var response = client.PostAsync(ChatHistoryUri, data);
 

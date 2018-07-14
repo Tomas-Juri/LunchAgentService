@@ -40,9 +40,17 @@ namespace LunchAgentService
         {
             if (env.IsDevelopment())
             {
+                app.UseBrowserLink();
                 app.UseDeveloperExceptionPage();
             }
+            else
+            {
+                app.UseExceptionHandler("/Error");
+            }
 
+            app.UseStaticFiles();
+
+            app.UseAuthentication();
             app.UseMvc();
         }
     }

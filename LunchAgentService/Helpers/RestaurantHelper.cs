@@ -13,6 +13,23 @@ namespace LunchAgentService.Helpers
     {
         private List<RestaurantSettings> _restaurantSettingses;
 
+        public List<RestaurantSettings> RestaurantSettingses
+        {
+            get
+            {
+                lock (_restaurantSettingses)
+                {
+                    return _restaurantSettingses;
+                }
+            }
+            set
+            {
+                lock (_restaurantSettingses)
+                {
+                    _restaurantSettingses = value;
+                }
+            }
+        }
 
         public RestaurantHelper(IEnumerable<RestaurantSettings> restaurantSettings)
         {
@@ -27,35 +44,38 @@ namespace LunchAgentService.Helpers
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-            foreach (var setting in _restaurantSettingses)
+            lock (_restaurantSettingses)
             {
-                using (var client = new WebClient())
+                foreach (var setting in _restaurantSettingses)
                 {
+                    using (var client = new WebClient())
+                    {
+                        try
+                        {
+                            var data = setting.Url.Contains("makalu")
+                                ? Encoding.UTF8.GetString(client.DownloadData(setting.Url))
+                                : Encoding.GetEncoding(1250).GetString(client.DownloadData(setting.Url));
+
+                            document.LoadHtml(data);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                        }
+                    }
+
                     try
                     {
-                        var data = setting.Url.Contains("makalu")
-                            ? Encoding.UTF8.GetString(client.DownloadData(setting.Url))
-                            : Encoding.GetEncoding(1250).GetString(client.DownloadData(setting.Url));
+                        var parsedMenu = setting.Url.Contains("makalu")
+                            ? ParseMenuFromMakalu(document.DocumentNode)
+                            : ParseMenuFromMenicka(document.DocumentNode);
 
-                        document.LoadHtml(data);
+                        result.Add(Tuple.Create(setting, parsedMenu));
                     }
                     catch (Exception e)
                     {
                         Console.WriteLine(e);
                     }
-                }
-
-                try
-                {
-                    var parsedMenu = setting.Url.Contains("makalu")
-                        ? ParseMenuFromMakalu(document.DocumentNode)
-                        : ParseMenuFromMenicka(document.DocumentNode);
-
-                    result.Add(Tuple.Create(setting, parsedMenu));
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
                 }
             }
 

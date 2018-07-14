@@ -1,6 +1,6 @@
-﻿namespace WebApplication1.Helpers.Entities
+﻿namespace LunchAgentService.Helpers.Entities
 {
-    public struct RestaurantSettings
+    public class RestaurantSettings
     {
         public string Name { get; set; }
         public string Url { get; set; }

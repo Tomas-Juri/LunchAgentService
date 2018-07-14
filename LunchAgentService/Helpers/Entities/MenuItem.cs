@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace WebApplication1.Helpers.Entities
+namespace LunchAgentService.Helpers.Entities
 {
     public class MenuItem
     {

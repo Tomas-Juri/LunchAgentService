@@ -46,14 +46,7 @@ namespace LunchAgentService.Services
                     SlackHelper.UpdateMenu(menus);
                 }
 
-                if (RestaurantHelper.CheckMenus(menus) == false)
-                {
-                    Status = ScheduleStatus.Update;
-                }
-                else
-                {
-                    Status = ScheduleStatus.DoneToday;
-                }
+                Status = ScheduleStatus.Update;
 
                 // End updating after 11:00
                 if (DateTime.Now.Hour > 11)

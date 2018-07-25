@@ -52,7 +52,7 @@ namespace LunchAgentService.Helpers
 
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", postRequestObject.BotToken);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", postRequestObject.token);
                 var response = client.PostAsync(PostMessageUri, data);
 
                 response.Wait();
@@ -80,7 +80,7 @@ namespace LunchAgentService.Helpers
 
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", postRequestObject.BotToken);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", postRequestObject.token);
                 var response = client.PostAsync(UpdateMessageUri, data);
             }
         }
@@ -103,7 +103,7 @@ namespace LunchAgentService.Helpers
 
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", postRequestObject.BotToken);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", postRequestObject.token);
 
                 var response = client.PostAsync(ChatHistoryUri, data);
 

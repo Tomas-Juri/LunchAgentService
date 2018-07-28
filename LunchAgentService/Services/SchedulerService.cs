@@ -12,7 +12,19 @@ namespace LunchAgentService.Services
         private RestaurantHelper RestaurantHelper { get; set; }
         private ILog Log { get; }
 
-        private ScheduleStatus Status { get; set; }
+        private ScheduleStatus _status;
+        private ScheduleStatus Status
+        {
+            get
+            {
+                return _status;
+            }
+            set
+            {
+                Log.Debug($"Setting status to '{value.ToString()}'");
+                _status = value;
+            }
+        }
 
         public SchedulerService(RestaurantHelper restauranthelper, SlackHelper slackHelper, ILog Log)
         {
@@ -47,26 +59,24 @@ namespace LunchAgentService.Services
 
                 if (Status == ScheduleStatus.Post)
                 {
-                    Log.Debug("Posting menus");
+                    Log.Debug("Posting menus to slack");
 
                     SlackHelper.PostMenu(menus);
                 }
 
                 if (Status == ScheduleStatus.Update)
                 {
-                    Log.Debug("Updating menus");
+                    Log.Debug("Updating menus to slack");
 
                     SlackHelper.UpdateMenu(menus);
                 }
-
-                Log.Debug("Scheduling update");
 
                 Status = ScheduleStatus.Update;
 
                 // End updating after 11:00
                 if (DateTime.Now.Hour > 11)
                 {
-                    Log.Debug("Scheduling done");
+                    Log.Debug("Its past 11, stopping for today");
 
                     Status = ScheduleStatus.DoneToday;
                 }

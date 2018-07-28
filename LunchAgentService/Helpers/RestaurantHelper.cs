@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
+using log4net;
 using LunchAgentService.Helpers.Entities;
 
 namespace LunchAgentService.Helpers
@@ -31,9 +32,10 @@ namespace LunchAgentService.Helpers
             }
         }
 
-        public RestaurantHelper(IEnumerable<RestaurantSettings> restaurantSettings)
+        public RestaurantHelper(IEnumerable<RestaurantSettings> restaurantSettings, ILog log)
         {
             _restaurantSettingses = restaurantSettings.ToList();
+
         }
 
         public List<Tuple<RestaurantSettings, List<MenuItem>>> GetMenus()

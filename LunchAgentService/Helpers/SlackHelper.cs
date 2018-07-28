@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using log4net;
 using LunchAgentService.Helpers.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -18,7 +19,6 @@ namespace LunchAgentService.Helpers
         private static readonly string ChatHistoryUri = "https://slack.com/api/channels.history";
 
         private SlackSetting _slackConfiguration;
-
         public SlackSetting SlackConfiguration
         {
             get { return _slackConfiguration; }
@@ -31,32 +31,26 @@ namespace LunchAgentService.Helpers
             }
         }
 
-        public SlackHelper(SlackSetting slackConfiguration)
+        private ILog Log { get; set; }
+
+
+        public SlackHelper(SlackSetting slackConfiguration, ILog log)
         {
-            this._slackConfiguration = slackConfiguration;
+            _slackConfiguration = slackConfiguration;
+            Log = log;
         }
 
         public void PostMenu(List<Tuple<RestaurantSettings, List<MenuItem>>> menus)
         {
-            dynamic postRequestObject = new ExpandoObject();
+            dynamic postRequestObject = GetRequestObjectFromSlackConfiguration();
 
-            lock (_slackConfiguration)
-            {
-                postRequestObject.token = _slackConfiguration.BotToken;
-                postRequestObject.channel = _slackConfiguration.ChannelName;
-                postRequestObject.bot_id = _slackConfiguration.BotId;
-                postRequestObject.text = FormatMenuForSlack(menus);
-            }
+            Log.Debug("Adding text to request object");
 
-            var data = new StringContent(JObject.FromObject(postRequestObject).ToString(), Encoding.UTF8, "application/json");
+            postRequestObject.text = FormatMenuForSlack(menus);
 
-            using (var client = new HttpClient())
-            {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", postRequestObject.token);
-                var response = client.PostAsync(PostMessageUri, data);
+            Log.Debug($"Added text to request object {postRequestObject.text}");
 
-                response.Wait();
-            }
+            PostToSlack(postRequestObject, PostMessageUri);
         }
 
         public void UpdateMenu(List<Tuple<RestaurantSettings, List<MenuItem>>> menus)
@@ -66,48 +60,62 @@ namespace LunchAgentService.Helpers
             if (string.IsNullOrEmpty(timestamp))
                 return;
 
-            dynamic postRequestObject = new ExpandoObject();
+            dynamic postRequestObject = GetRequestObjectFromSlackConfiguration();
 
-            lock (_slackConfiguration)
-            {
-                postRequestObject.token = _slackConfiguration.BotToken;
-                postRequestObject.channel = _slackConfiguration.ChannelName;
-                postRequestObject.text = FormatMenuForSlack(menus);
-                postRequestObject.ts = timestamp;
-            }
+            Log.Debug("Adding text and timestamp to request object");
 
-            var data = new StringContent(JObject.FromObject(postRequestObject).ToString(), Encoding.UTF8, "application/json");
+            postRequestObject.text = FormatMenuForSlack(menus);
+            postRequestObject.ts = timestamp;
+
+            Log.Debug($"Added text and timestamp to request object {postRequestObject.text}");
+
+            PostToSlack(postRequestObject, UpdateMessageUri);
+        }
+
+        private string PostToSlack(dynamic requestObject, string requestUri)
+        {
+            Log.Debug($"Posting request to slack uri: {PostMessageUri}");
+
+            var data = new StringContent(JObject.FromObject(requestObject).ToString(), Encoding.UTF8, "application/json");
 
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", postRequestObject.token);
-                var response = client.PostAsync(UpdateMessageUri, data);
+                try
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", requestObject.token);
+                    var response = client.PostAsync(PostMessageUri, data);
+
+                    response.Wait();
+                    var result = response.Result.Content.ReadAsStringAsync().Result;
+
+                    Log.Debug($"Request posted successfuly. Response: {result}");
+
+                    return result;
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Error while posting request", e);
+
+                    return null;
+                }
             }
         }
 
         private string GetLastMessageTimestamp()
         {
-            dynamic postRequestObject = new ExpandoObject();
+            Log.Debug("Getting timestamp of last message posted to slack");
 
-            lock (_slackConfiguration)
-            {
-                postRequestObject.token = _slackConfiguration.BotToken;
-                postRequestObject.channel = _slackConfiguration.ChannelName;
-                postRequestObject.bot_id = _slackConfiguration.BotId;
-            }
-
-            var data = new StringContent(JObject.FromObject(postRequestObject).ToString(), Encoding.UTF8, "application/json");
+            dynamic postRequestObject = GetRequestObjectFromSlackConfiguration();
 
             var timeStamp = DateTime.Today;
             var result = "";
 
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", postRequestObject.token);
+                var stringResponse = PostToSlack(postRequestObject, ChatHistoryUri);
 
-                var response = client.PostAsync(ChatHistoryUri, data);
-
-                var stringResponse = response.Result.Content.ReadAsStringAsync().Result;
+                if (string.IsNullOrEmpty(stringResponse))
+                    return "";
 
                 dynamic jsonJObject = JObject.Parse(stringResponse);
 
@@ -132,11 +140,15 @@ namespace LunchAgentService.Helpers
                 }
             }
 
+            Log.Debug($"Result of last timestamp is: '{result}'");
+
             return result;
         }
 
         private string FormatMenuForSlack(List<Tuple<RestaurantSettings, List<MenuItem>>> parsedMenus)
         {
+            Log.Debug("Formating menu for slack");
+
             var result = new List<string>();
 
             foreach (var parsedMenu in parsedMenus)
@@ -149,6 +161,24 @@ namespace LunchAgentService.Helpers
             }
 
             return string.Join(Environment.NewLine + Environment.NewLine, result);
+        }
+
+        private ExpandoObject GetRequestObjectFromSlackConfiguration()
+        {
+            Log.Debug("Creating request object from slack configuration");
+
+            dynamic result = new ExpandoObject();
+
+            lock (_slackConfiguration)
+            {
+                result.token = _slackConfiguration.BotToken;
+                result.channel = _slackConfiguration.ChannelName;
+                result.bot_id = _slackConfiguration.BotId;
+            }
+
+            Log.Debug($"Created request object: {JObject.FromObject(result).ToString()}");
+
+            return result;
         }
     }
 }

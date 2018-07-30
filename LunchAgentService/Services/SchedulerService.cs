@@ -40,7 +40,9 @@ namespace LunchAgentService.Services
             Status = ScheduleStatus.Post;
 
             if (DateTime.Now.Hour > 11)
+            {
                 Status = ScheduleStatus.DoneToday;
+            }
 
             while (cancellationToken.IsCancellationRequested == false)
             {
@@ -100,6 +102,8 @@ namespace LunchAgentService.Services
                     Log.Debug("Its past 11, stopping for today");
 
                     Status = ScheduleStatus.DoneToday;
+
+                    continue;
                 }
 
                 Log.Debug("Sleeping for 15 minutes");

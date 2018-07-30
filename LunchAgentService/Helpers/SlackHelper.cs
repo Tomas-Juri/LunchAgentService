@@ -32,8 +32,7 @@ namespace LunchAgentService.Helpers
         }
 
         private ILog Log { get; set; }
-
-
+        
         public SlackHelper(SlackSetting slackConfiguration, ILog log)
         {
             _slackConfiguration = slackConfiguration;
@@ -115,7 +114,6 @@ namespace LunchAgentService.Helpers
             {
                 Log.Debug($"Posting request to slack uri: {ChatHistoryUri}");
 
-
                 lock (_slackConfiguration)
                 {
                     formData["token"] = _slackConfiguration.BotToken;
@@ -168,7 +166,6 @@ namespace LunchAgentService.Helpers
                     result = rawTs;
                 }
             }
-
 
             Log.Debug($"Result of last timestamp is: '{result}'");
 

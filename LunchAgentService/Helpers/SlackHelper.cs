@@ -74,7 +74,7 @@ namespace LunchAgentService.Helpers
 
         private string PostToSlack(dynamic requestObject, string requestUri)
         {
-            Log.Debug($"Posting request to slack uri: {PostMessageUri}");
+            Log.Debug($"Posting request to slack uri: {requestUri}");
 
             var data = new StringContent(JObject.FromObject(requestObject).ToString(), Encoding.UTF8, "application/json");
 
@@ -83,7 +83,7 @@ namespace LunchAgentService.Helpers
                 try
                 {
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", requestObject.token);
-                    var response = client.PostAsync(PostMessageUri, data);
+                    var response = client.PostAsync(requestUri, data);
 
                     response.Wait();
                     var result = response.Result.Content.ReadAsStringAsync().Result;
@@ -105,40 +105,70 @@ namespace LunchAgentService.Helpers
         {
             Log.Debug("Getting timestamp of last message posted to slack");
 
-            dynamic postRequestObject = GetRequestObjectFromSlackConfiguration();
-
             var timeStamp = DateTime.Today;
             var result = "";
+            var stringResponse = "";
+
+            var formData = new Dictionary<string, string>();
 
             using (var client = new HttpClient())
             {
-                var stringResponse = PostToSlack(postRequestObject, ChatHistoryUri);
+                Log.Debug($"Posting request to slack uri: {ChatHistoryUri}");
 
-                if (string.IsNullOrEmpty(stringResponse))
-                    return "";
 
-                dynamic jsonJObject = JObject.Parse(stringResponse);
-
-                var ar = ((JArray)jsonJObject.messages).ToList();
-
-                foreach (dynamic arElement in ar)
+                lock (_slackConfiguration)
                 {
-                    if (arElement.bot_id != postRequestObject.bot_id)
-                        continue;
+                    formData["token"] = _slackConfiguration.BotToken;
+                    formData["channel"] = _slackConfiguration.ChannelName;
+                    formData["bot_id"] = _slackConfiguration.BotId;
+                }
 
-                    string rawTs = arElement.ts;
+                var data = new FormUrlEncodedContent(formData);
 
-                    var tsInt = (int)Convert.ToDouble(rawTs.Replace(".", ","));
+                try
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", formData["token"]);
+                    var response = client.PostAsync(ChatHistoryUri, data);
 
-                    var tsDate = (new DateTime(1970, 1, 1)).AddSeconds(tsInt);
+                    response.Wait();
+                    stringResponse = response.Result.Content.ReadAsStringAsync().Result;
 
-                    if (tsDate > timeStamp)
-                    {
-                        timeStamp = tsDate;
-                        result = rawTs;
-                    }
+                    Log.Debug($"Request posted successfuly. Response: {result}");
+
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Error while posting request", e);
+
+                }
+
+            }
+
+            if (string.IsNullOrEmpty(stringResponse))
+                return "";
+
+            dynamic jsonJObject = JObject.Parse(stringResponse);
+
+            var ar = ((JArray)jsonJObject.messages).ToList();
+
+            foreach (dynamic arElement in ar)
+            {
+                if (arElement.bot_id != formData["bot_id"])
+                    continue;
+
+                string rawTs = arElement.ts;
+
+                var tsInt = (long)Convert.ToDouble(rawTs.Replace(".", ",")) / 1000000;
+
+                var tsDate = (new DateTime(1970, 1, 1)).AddSeconds(tsInt);
+
+                if (tsDate > timeStamp)
+                {
+                    timeStamp = tsDate;
+                    result = rawTs;
                 }
             }
+
 
             Log.Debug($"Result of last timestamp is: '{result}'");
 

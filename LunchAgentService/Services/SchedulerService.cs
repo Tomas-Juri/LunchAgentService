@@ -39,6 +39,9 @@ namespace LunchAgentService.Services
 
             Status = ScheduleStatus.Post;
 
+            if (DateTime.Now.Hour > 11)
+                Status = ScheduleStatus.DoneToday;
+
             while (cancellationToken.IsCancellationRequested == false)
             {
                 if (Status == ScheduleStatus.DoneToday || DateTime.Now.DayOfWeek == DayOfWeek.Sunday || DateTime.Now.DayOfWeek == DayOfWeek.Saturday)
@@ -61,14 +64,32 @@ namespace LunchAgentService.Services
                 {
                     Log.Debug("Posting menus to slack");
 
-                    SlackHelper.PostMenu(menus);
+                    try
+                    {
+                        SlackHelper.PostMenu(menus);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error occured while posting to slack:"  + e);
+
+                        Log.Error("Error occured while posting menus to slack", e);
+                    }
                 }
 
                 if (Status == ScheduleStatus.Update)
                 {
                     Log.Debug("Updating menus to slack");
 
-                    SlackHelper.UpdateMenu(menus);
+                    try
+                    {
+                        SlackHelper.UpdateMenu(menus);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error occured while updating to slack:" + e);
+
+                        Log.Error("Error occured while updating menus to slack", e);
+                    }
                 }
 
                 Status = ScheduleStatus.Update;

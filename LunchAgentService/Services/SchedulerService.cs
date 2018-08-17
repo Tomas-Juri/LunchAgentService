@@ -9,6 +9,7 @@ namespace LunchAgentService.Services
     public class SchedulerService : HostedService
     {
         private SlackHelper SlackHelper { get; set; }
+        private MongoDatabaseAcessService DatabaseAcessService { get; }
         private RestaurantHelper RestaurantHelper { get; set; }
         private ILog Log { get; }
 
@@ -26,10 +27,11 @@ namespace LunchAgentService.Services
             }
         }
 
-        public SchedulerService(RestaurantHelper restauranthelper, SlackHelper slackHelper, ILog Log)
+        public SchedulerService(RestaurantHelper restauranthelper, SlackHelper slackHelper, MongoDatabaseAcessService databaseAcessService , ILog Log)
         {
             RestaurantHelper = restauranthelper;
             SlackHelper = slackHelper;
+            DatabaseAcessService = databaseAcessService;
             this.Log = Log;
         }
 
@@ -54,6 +56,18 @@ namespace LunchAgentService.Services
                     await Task.Delay(DateTime.Today.AddDays(1).AddHours(7) - DateTime.Now, cancellationToken);
 
                     Status = ScheduleStatus.Post;
+
+                    // Get user responses for statistics
+                    try
+                    {
+                        var userResponses = SlackHelper.GetUserResponsesForRestaurant();
+
+                        DatabaseAcessService.InsertUserResponses(userResponses);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error("Error while getting user responses for 'Kam dnes na obed'", e);
+                    }
 
                     continue;
                 }

@@ -38,6 +38,7 @@ namespace LunchAgentService
             var logger = LogManager.GetLogger(typeof(Startup));
 
             services.AddSingleton(m => logger);
+            services.AddSingleton(s => new MongoDatabaseAcessService(Configuration.GetSection("MongoDBConnectionString").Get<string>()));
             services.AddSingleton(m => new SlackHelper(Configuration.GetSection("DefaultSlackConfiguration").Get<SlackSetting>(), logger));
             services.AddSingleton(m => new RestaurantHelper(Configuration.GetSection("DefaultRestaurants").Get<RestaurantSettings[]>(), logger));
 

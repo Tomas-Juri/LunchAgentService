@@ -32,7 +32,7 @@ namespace LunchAgentService.Helpers
         }
 
         private ILog Log { get; set; }
-        
+
         public SlackHelper(SlackSetting slackConfiguration, ILog log)
         {
             _slackConfiguration = slackConfiguration;
@@ -100,6 +100,75 @@ namespace LunchAgentService.Helpers
             }
         }
 
+
+        public Dictionary<string, string[]> GetUserResponsesForRestaurant()
+        {
+            var stringResponse = "";
+            var formData = new Dictionary<string, string>();
+
+            using (var client = new HttpClient())
+            {
+                Log.Debug($"Posting request to slack uri: {ChatHistoryUri}");
+
+                lock (_slackConfiguration)
+                {
+                    formData["token"] = _slackConfiguration.BotToken;
+                    formData["channel"] = _slackConfiguration.ChannelName;
+                    formData["bot_id"] = _slackConfiguration.BotId;
+                }
+
+                var data = new FormUrlEncodedContent(formData);
+
+                try
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", formData["token"]);
+                    var response = client.PostAsync(ChatHistoryUri, data);
+
+                    response.Wait();
+                    stringResponse = response.Result.Content.ReadAsStringAsync().Result;
+
+                    Log.Debug($"Request posted successfuly. Response: {stringResponse}");
+
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Error while posting request", e);
+
+                }
+
+            }
+
+            dynamic jsonJObject = JObject.Parse(stringResponse);
+
+            var ar = ((JArray)jsonJObject.messages).ToList();
+
+            dynamic reminderMessage = null;
+
+            foreach (dynamic arElement in ar)
+            {
+                if (arElement.text.ToString().Contains("Kam na oběd"))
+                {
+                    reminderMessage = arElement;
+
+                    break;
+                }
+            }
+
+            var result = new Dictionary<string, string[]>();
+
+            if (reminderMessage == null)
+            {
+                return result;
+            }
+
+            foreach (dynamic reaction in ((JArray)reminderMessage.reactions).ToList())
+            {
+                result[reaction.name.ToString()] = ((JArray)reaction.users).Select(x => x.ToString()).ToArray();
+            }
+
+            return result;
+        }
+
         private string GetLastMessageTimestamp()
         {
             Log.Debug("Getting timestamp of last message posted to slack");
@@ -131,7 +200,7 @@ namespace LunchAgentService.Helpers
                     response.Wait();
                     stringResponse = response.Result.Content.ReadAsStringAsync().Result;
 
-                    Log.Debug($"Request posted successfuly. Response: {result}");
+                    Log.Debug($"Request posted successfuly. Response: {stringResponse}");
 
                 }
                 catch (Exception e)
@@ -207,5 +276,6 @@ namespace LunchAgentService.Helpers
 
             return result;
         }
+
     }
 }

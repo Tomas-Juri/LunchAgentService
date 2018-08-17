@@ -52,11 +52,6 @@ namespace LunchAgentService.Services
                 {
                     Log.Debug("Done for today, sleeping until next day");
 
-                    // Sleep until 7:00 of next day
-                    await Task.Delay(DateTime.Today.AddDays(1).AddHours(7) - DateTime.Now, cancellationToken);
-
-                    Status = ScheduleStatus.Post;
-
                     // Get user responses for statistics
                     try
                     {
@@ -68,6 +63,11 @@ namespace LunchAgentService.Services
                     {
                         Log.Error("Error while getting user responses for 'Kam dnes na obed'", e);
                     }
+
+                    // Sleep until 7:00 of next day
+                    await Task.Delay(DateTime.Today.AddDays(1).AddHours(7) - DateTime.Now, cancellationToken);
+
+                    Status = ScheduleStatus.Post;
 
                     continue;
                 }

@@ -25,14 +25,16 @@ namespace LunchAgentService.Controllers
         [Route("getslacksetting")]
         public IActionResult GetSlackSetting()
         {
-            var usernamePassword = GetPasswordFromRequest();
+            return new EmptyResult();
 
-            if (usernamePassword != "user:password")
-            {
-                return new UnauthorizedResult();
-            }
+            //var usernamePassword = GetPasswordFromRequest();
 
-            return new JsonResult(_slackHelper.SlackConfiguration);
+            //if (usernamePassword != "user:password")
+            //{
+            //    return new UnauthorizedResult();
+            //}
+
+            //return new JsonResult(_slackHelper.SlackConfiguration);
         }
 
 
@@ -40,42 +42,48 @@ namespace LunchAgentService.Controllers
         [Route("getretaurantsetting")]
         public IActionResult GetRestaurantsSetting()
         {
-            var usernamePassword = GetPasswordFromRequest();
+            return new EmptyResult();
 
-            if (usernamePassword != "user:password")
-            {
-                return new UnauthorizedResult();
-            }
+            //var usernamePassword = GetPasswordFromRequest();
 
-            return new JsonResult(_restaurantHelper.RestaurantSettingses);
+            //if (usernamePassword != "user:password")
+            //{
+            //    return new UnauthorizedResult();
+            //}
+
+            //return new JsonResult(_restaurantHelper.RestaurantSettingses);
         }
 
         [HttpPost]
         [Route("setslacksetting")]
         public IActionResult SetSlackSettings([FromBody]SlackSetting slackSetting)
         {
-            var usernamePassword = GetPasswordFromRequest();
+            return new EmptyResult();
 
-            if (usernamePassword != "user:password")
-            {
-                return new UnauthorizedResult();
-            }
+            //var usernamePassword = GetPasswordFromRequest();
 
-            return new JsonResult(slackSetting);
+            //if (usernamePassword != "user:password")
+            //{
+            //    return new UnauthorizedResult();
+            //}
+
+            //return new JsonResult(slackSetting);
         }
 
         [HttpPost]
         [Route("setrestaurantsetting")]
         public IActionResult SetRestaurantSettings([FromBody]RestaurantSettings[] restaurantSettingses)
         {
-            var usernamePassword = GetPasswordFromRequest();
+            return new EmptyResult();
 
-            if (usernamePassword != "user:password")
-            {
-                return new UnauthorizedResult();
-            }
+            //var usernamePassword = GetPasswordFromRequest();
 
-            return new JsonResult(restaurantSettingses);
+            //if (usernamePassword != "user:password")
+            //{
+            //    return new UnauthorizedResult();
+            //}
+
+            //return new JsonResult(restaurantSettingses);
         }
 
         private string GetPasswordFromRequest()

@@ -52,18 +52,6 @@ namespace LunchAgentService.Services
                 {
                     Log.Debug("Done for today, sleeping until next day");
 
-                    // Get user responses for statistics
-                    try
-                    {
-                        var userResponses = SlackHelper.GetUserResponsesForRestaurant();
-
-                        DatabaseAcessService.InsertUserResponses(userResponses);
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error("Error while getting user responses for 'Kam dnes na obed'", e);
-                    }
-
                     // Sleep until 7:00 of next day
                     await Task.Delay(DateTime.Today.AddDays(1).AddHours(7) - DateTime.Now, cancellationToken);
 

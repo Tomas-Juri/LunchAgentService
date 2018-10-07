@@ -46,40 +46,40 @@ namespace LunchAgentService.Helpers
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-            lock (_restaurantSettingses)
+            var restaurants = RestaurantSettingses.ToList();
+
+            foreach (var setting in restaurants)
             {
-                foreach (var setting in _restaurantSettingses)
+                using (var client = new WebClient())
                 {
-                    using (var client = new WebClient())
-                    {
-                        try
-                        {
-                            var data = setting.Url.Contains("makalu")
-                                ? Encoding.UTF8.GetString(client.DownloadData(setting.Url))
-                                : Encoding.GetEncoding(1250).GetString(client.DownloadData(setting.Url));
-
-                            document.LoadHtml(data);
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e);
-                        }
-                    }
-
                     try
                     {
-                        var parsedMenu = setting.Url.Contains("makalu")
-                            ? ParseMenuFromMakalu(document.DocumentNode)
-                            : ParseMenuFromMenicka(document.DocumentNode);
+                        var data = setting.Url.Contains("makalu")
+                            ? Encoding.UTF8.GetString(client.DownloadData(setting.Url))
+                            : Encoding.GetEncoding(1250).GetString(client.DownloadData(setting.Url));
 
-                        result.Add(Tuple.Create(setting, parsedMenu));
+                        document.LoadHtml(data);
                     }
                     catch (Exception e)
                     {
                         Console.WriteLine(e);
                     }
                 }
+
+                try
+                {
+                    var parsedMenu = setting.Url.Contains("makalu")
+                        ? ParseMenuFromMakalu(document.DocumentNode)
+                        : ParseMenuFromMenicka(document.DocumentNode);
+
+                    result.Add(Tuple.Create(setting, parsedMenu));
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
+
 
             return result;
         }
@@ -95,7 +95,7 @@ namespace LunchAgentService.Helpers
             {
                 var item = new MenuItem();
 
-                if (food.GetClasses().Contains("soup") == true)
+                if (food.GetClasses().Contains("soup"))
                 {
                     item.FoodType = FoodType.Soup;
                     item.Description = Regex.Replace(food.SelectNodes(".//td").Single(x => x.GetClasses().Contains("food")).InnerText, "\\d+.?", string.Empty);
@@ -132,10 +132,11 @@ namespace LunchAgentService.Helpers
 
             foreach (Match item in Regex.Matches(soupString.Value, "[r]>.+?(?=<[bs])"))
             {
-                var newItem = new MenuItem();
-
-                newItem.FoodType = FoodType.Soup;
-                newItem.Description = item.Value.Substring(2);
+                var newItem = new MenuItem
+                {
+                    FoodType = FoodType.Soup,
+                    Description = item.Value.Substring(2)
+                };
 
                 result.Add(newItem);
             }
@@ -144,11 +145,12 @@ namespace LunchAgentService.Helpers
 
             foreach (Match match in matches)
             {
-                var item = new MenuItem();
-
-                item.FoodType = FoodType.Main;
-                item.Price = Regex.Match(match.Value, "(?='>)(.*)(?=</span)").Value.Substring(2);
-                item.Description = Regex.Match(match.Value, "(?=<b>)(.+?)(?=<span)").Value.Substring(3) + "  ";
+                var item = new MenuItem
+                {
+                    FoodType = FoodType.Main,
+                    Price = Regex.Match(match.Value, "(?='>)(.*)(?=</span)").Value.Substring(2),
+                    Description = Regex.Match(match.Value, "(?=<b>)(.+?)(?=<span)").Value.Substring(3) + "  "
+                };
 
                 result.Add(item);
             }

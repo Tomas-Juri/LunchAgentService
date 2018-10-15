@@ -12,6 +12,8 @@ namespace LunchAgentService.Helpers
 {
     public class RestaurantHelper
     {
+        public ILog Log { get; }
+
         private List<RestaurantSettings> _restaurantSettingses;
 
         public List<RestaurantSettings> RestaurantSettingses
@@ -34,8 +36,8 @@ namespace LunchAgentService.Helpers
 
         public RestaurantHelper(IEnumerable<RestaurantSettings> restaurantSettings, ILog log)
         {
+            Log = log;
             _restaurantSettingses = restaurantSettings.ToList();
-
         }
 
         public List<Tuple<RestaurantSettings, List<MenuItem>>> GetMenus()
@@ -62,7 +64,7 @@ namespace LunchAgentService.Helpers
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e);
+                        Log.Debug(e);
                     }
                 }
 
@@ -76,7 +78,7 @@ namespace LunchAgentService.Helpers
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    Log.Debug(e);
                 }
             }
 

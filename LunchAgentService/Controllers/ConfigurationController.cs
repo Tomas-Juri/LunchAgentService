@@ -86,6 +86,17 @@ namespace LunchAgentService.Controllers
             //return new JsonResult(restaurantSettingses);
         }
 
+        [HttpPost]
+        [Route("setrestaurantsetting")]
+        public IActionResult ForceUpdate()
+        {
+            var menus = _restaurantHelper.GetMenus();
+
+            _slackHelper.UpdateMenu(menus);
+
+            return Ok();
+        }
+
         private string GetPasswordFromRequest()
         {
             var authHeader = Request.Headers["Authorization"].First();

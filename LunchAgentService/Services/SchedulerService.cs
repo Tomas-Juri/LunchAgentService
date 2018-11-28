@@ -2,124 +2,50 @@
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
-using LunchAgentService.Helpers;
+using LunchAgentService.Services.RestaurantService;
+using LunchAgentService.Services.SlackService;
 
 namespace LunchAgentService.Services
 {
     public class SchedulerService : HostedService
     {
-        private SlackHelper SlackHelper { get; set; }
-        private MongoDatabaseAcessService DatabaseAcessService { get; }
-        private RestaurantHelper RestaurantHelper { get; set; }
+        private SlackService.SlackService SlackService { get; set; }
+        private RestaurantService.RestaurantService RestaurantService { get; set; }
         private ILog Log { get; }
 
-        private ScheduleStatus _status;
-        private ScheduleStatus Status
+        public SchedulerService(RestaurantService.RestaurantService restaurantService, SlackService.SlackService slackService, ILog log)
         {
-            get
-            {
-                return _status;
-            }
-            set
-            {
-                Log.Debug($"Setting status to '{value.ToString()}'");
-                _status = value;
-            }
-        }
-
-        public SchedulerService(RestaurantHelper restauranthelper, SlackHelper slackHelper, MongoDatabaseAcessService databaseAcessService , ILog Log)
-        {
-            RestaurantHelper = restauranthelper;
-            SlackHelper = slackHelper;
-            DatabaseAcessService = databaseAcessService;
-            this.Log = Log;
+            RestaurantService = restaurantService;
+            SlackService = slackService;
+            Log = log;
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             Log.Debug("Starting scheduling");
 
-            Status = ScheduleStatus.Post;
-
-            if (DateTime.Now.Hour > 11)
-            {
-                Status = ScheduleStatus.DoneToday;
-            }
-
             while (cancellationToken.IsCancellationRequested == false)
             {
-                if (Status == ScheduleStatus.DoneToday || DateTime.Now.DayOfWeek == DayOfWeek.Sunday || DateTime.Now.DayOfWeek == DayOfWeek.Saturday)
+                if (DateTime.Now.Hour > 11 || DateTime.Now.DayOfWeek == DayOfWeek.Sunday || DateTime.Now.DayOfWeek == DayOfWeek.Saturday)
                 {
-                    Log.Debug("Done for today, sleeping until next day");
-
-                    // Sleep until 7:00 of next day
-                    await Task.Delay(DateTime.Today.AddDays(1).AddHours(7) - DateTime.Now, cancellationToken);
-
-                    Status = ScheduleStatus.Post;
-
-                    continue;
+                    await Task.Delay(DateTime.Today.AddHours(7).AddDays(1) - DateTime.Now, cancellationToken);
                 }
 
-                Log.Debug("Getting menus");
+                var menus = RestaurantService.GetMenus();
 
-                var menus = RestaurantHelper.GetMenus();
+                Log.Debug("Posting menus to slack");
 
-                if (Status == ScheduleStatus.Post)
+                try
                 {
-                    Log.Debug("Posting menus to slack");
-
-                    try
-                    {
-                        SlackHelper.PostMenu(menus);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Error occured while posting to slack:"  + e);
-
-                        Log.Error("Error occured while posting menus to slack", e);
-                    }
+                    SlackService.ProcessMenus(menus);
                 }
-
-                if (Status == ScheduleStatus.Update)
+                catch (Exception exception)
                 {
-                    Log.Debug("Updating menus to slack");
-
-                    try
-                    {
-                        SlackHelper.UpdateMenu(menus);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Error occured while updating to slack:" + e);
-
-                        Log.Error("Error occured while updating menus to slack", e);
-                    }
+                    Log.Error("Failed to post menus to slack", exception);
                 }
-
-                Status = ScheduleStatus.Update;
-
-                // End updating after 11:00
-                if (DateTime.Now.Hour > 11)
-                {
-                    Log.Debug("Its past 11, stopping for today");
-
-                    Status = ScheduleStatus.DoneToday;
-
-                    continue;
-                }
-
-                Log.Debug("Sleeping for 15 minutes");
 
                 await Task.Delay(TimeSpan.FromMinutes(15), cancellationToken);
             }
-        }
-
-
-        private enum ScheduleStatus
-        {
-            DoneToday,
-            Update,
-            Post
         }
     }
 }

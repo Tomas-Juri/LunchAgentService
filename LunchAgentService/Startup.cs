@@ -6,16 +6,14 @@ using System.Reflection;
 using System.Threading.Tasks;
 using log4net;
 using log4net.Config;
-using LunchAgentService.Helpers;
-using LunchAgentService.Helpers.Entities;
 using LunchAgentService.Services;
+using LunchAgentService.Services.RestaurantService;
+using LunchAgentService.Services.SlackService;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace LunchAgentService
 {
@@ -38,9 +36,8 @@ namespace LunchAgentService
             var logger = LogManager.GetLogger(typeof(Startup));
 
             services.AddSingleton(m => logger);
-            services.AddSingleton(s => new MongoDatabaseAcessService(Configuration.GetSection("MongoDBConnectionString").Get<string>()));
-            services.AddSingleton(m => new SlackHelper(Configuration.GetSection("DefaultSlackConfiguration").Get<SlackSetting>(), logger));
-            services.AddSingleton(m => new RestaurantHelper(Configuration.GetSection("DefaultRestaurants").Get<RestaurantSettings[]>(), logger));
+            services.AddSingleton(m => new SlackService(Configuration.GetSection("SlackServiceSetting").Get<SlackServiceSetting>(), logger));
+            services.AddSingleton(m => new RestaurantService(Configuration.GetSection("RestaurantServiceSettings").Get<RestaurantServiceSetting>(), logger));
 
             services.AddSingleton<IHostedService, SchedulerService>();
 

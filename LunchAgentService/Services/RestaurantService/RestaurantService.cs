@@ -6,49 +6,48 @@ using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using log4net;
-using LunchAgentService.Helpers.Entities;
 
-namespace LunchAgentService.Helpers
+namespace LunchAgentService.Services.RestaurantService
 {
-    public class RestaurantHelper
+    public class RestaurantService
     {
         public ILog Log { get; }
 
-        private List<RestaurantSettings> _restaurantSettingses;
+        private RestaurantServiceSetting _serviceSetting;
 
-        public List<RestaurantSettings> RestaurantSettingses
+        public RestaurantServiceSetting ServiceSetting
         {
             get
             {
-                lock (_restaurantSettingses)
+                lock (_serviceSetting)
                 {
-                    return _restaurantSettingses;
+                    return _serviceSetting.Clone();
                 }
             }
             set
             {
-                lock (_restaurantSettingses)
+                lock (_serviceSetting)
                 {
-                    _restaurantSettingses = value;
+                    _serviceSetting = value;
                 }
             }
         }
 
-        public RestaurantHelper(IEnumerable<RestaurantSettings> restaurantSettings, ILog log)
+        public RestaurantService(RestaurantServiceSetting restaurantSettings, ILog log)
         {
             Log = log;
-            _restaurantSettingses = restaurantSettings.ToList();
+            _serviceSetting = restaurantSettings;
         }
 
-        public List<Tuple<RestaurantSettings, List<MenuItem>>> GetMenus()
+        public List<RestaurantMenu> GetMenus()
         {
-            var result = new List<Tuple<RestaurantSettings, List<MenuItem>>>();
+            var result = new List<RestaurantMenu>();
 
             var document = new HtmlDocument();
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-            var restaurants = RestaurantSettingses.ToList();
+            var restaurants = ServiceSetting.Restaurants;
 
             foreach (var setting in restaurants)
             {
@@ -74,7 +73,11 @@ namespace LunchAgentService.Helpers
                         ? ParseMenuFromMakalu(document.DocumentNode)
                         : ParseMenuFromMenicka(document.DocumentNode);
 
-                    result.Add(Tuple.Create(setting, parsedMenu));
+                    result.Add(new RestaurantMenu()
+                    {
+                        Restaurant = setting,
+                        Items = parsedMenu
+                    });
                 }
                 catch (Exception e)
                 {
@@ -86,16 +89,16 @@ namespace LunchAgentService.Helpers
             return result;
         }
 
-        private static List<MenuItem> ParseMenuFromMenicka(HtmlNode todayMenu)
+        private static List<RestaurantMenuItem> ParseMenuFromMenicka(HtmlNode todayMenu)
         {
-            var result = new List<MenuItem>();
+            var result = new List<RestaurantMenuItem>();
 
             var foodMenus = todayMenu.SelectNodes(".//tr")
                 .Where(node => node.GetClasses().Contains("soup") || node.GetClasses().Contains("main"));
 
             foreach (var food in foodMenus)
             {
-                var item = new MenuItem();
+                var item = new RestaurantMenuItem();
 
                 if (food.GetClasses().Contains("soup"))
                 {
@@ -116,9 +119,9 @@ namespace LunchAgentService.Helpers
             return result;
         }
 
-        private static List<MenuItem> ParseMenuFromMakalu(HtmlNode todayMenu)
+        private static List<RestaurantMenuItem> ParseMenuFromMakalu(HtmlNode todayMenu)
         {
-            var result = new List<MenuItem>();
+            var result = new List<RestaurantMenuItem>();
 
             var todayString = GetTodayInCzech();
 
@@ -134,7 +137,7 @@ namespace LunchAgentService.Helpers
 
             foreach (Match item in Regex.Matches(soupString.Value, "[r]>.+?(?=<[bs])"))
             {
-                var newItem = new MenuItem
+                var newItem = new RestaurantMenuItem
                 {
                     FoodType = FoodType.Soup,
                     Description = item.Value.Substring(2)
@@ -147,7 +150,7 @@ namespace LunchAgentService.Helpers
 
             foreach (Match match in matches)
             {
-                var item = new MenuItem
+                var item = new RestaurantMenuItem
                 {
                     FoodType = FoodType.Main,
                     Price = Regex.Match(match.Value, "(?='>)(.*)(?=</span)").Value.Substring(2),

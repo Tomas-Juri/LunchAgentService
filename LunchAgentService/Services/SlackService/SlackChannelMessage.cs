@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using Newtonsoft.Json;
 
 namespace LunchAgentService.Services.SlackService
@@ -28,7 +29,7 @@ namespace LunchAgentService.Services.SlackService
         {
             get
             {
-                return new DateTime(1970, 1, 1).AddSeconds((long)Convert.ToDouble(Timestamp.Replace(".", ",")));
+                return new DateTime(1970, 1, 1).AddSeconds((long)Convert.ToDouble(Timestamp, CultureInfo.InvariantCulture));
 
             }
         }

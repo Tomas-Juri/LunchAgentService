@@ -49,7 +49,7 @@ namespace LunchAgentService.Services.SlackService
         {
             var history = GetSlackChannelHistory();
 
-            var todayMessage = history.Messages.FindAll(message => message.Date.Day == DateTime.Now.Day)
+            var todayMessage = history.Messages.FindAll(message => message.Date.Date == DateTime.Today)
                 .OrderByDescending(message => message.Date)
                 .FirstOrDefault();
 

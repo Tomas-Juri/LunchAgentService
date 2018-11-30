@@ -24,6 +24,8 @@ namespace LunchAgentService.Services.SlackService
         public int ReplyCount { get; set; }
         [JsonProperty("replies")]
         public object Replies { get; set; }
+        [JsonProperty("bot_id")]
+        public string BotId { get; set; }
         [JsonIgnore]
         public DateTime Date
         {

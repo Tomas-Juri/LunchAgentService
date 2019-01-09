@@ -29,6 +29,8 @@ namespace LunchAgentService.Services
                 if (DateTime.Now.Hour > 11 || DateTime.Now.DayOfWeek == DayOfWeek.Sunday || DateTime.Now.DayOfWeek == DayOfWeek.Saturday)
                 {
                     await Task.Delay(DateTime.Today.AddHours(7).AddDays(1) - DateTime.Now, cancellationToken);
+
+                    continue;
                 }
 
                 var menus = RestaurantService.GetMenus();

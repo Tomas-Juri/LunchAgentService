@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using log4net;
+using MongoDB.Bson.IO;
+using Newtonsoft.Json.Linq;
+using JsonConvert = Newtonsoft.Json.JsonConvert;
 
 namespace LunchAgentService.Services.RestaurantService
 {
@@ -51,6 +55,20 @@ namespace LunchAgentService.Services.RestaurantService
 
             foreach (var setting in restaurants)
             {
+                if (setting.Name.Contains("Bistrotéka"))
+                {
+                    using (var client = new HttpClient())
+                    {
+                        var data = client.GetStringAsync(setting.Url).Result;
+
+                        result.Add(new RestaurantMenu()
+                        {
+                            Items = ParseMenuFromBistroteka(data),
+                            Restaurant =  setting
+                        });
+                    }
+                }
+
                 using (var client = new WebClient())
                 {
                     try
@@ -85,6 +103,37 @@ namespace LunchAgentService.Services.RestaurantService
                 }
             }
 
+
+            return result;
+        }
+
+        private List<RestaurantMenuItem> ParseMenuFromBistroteka(string data)
+        {
+            var result = new List<RestaurantMenuItem>();
+
+            var items = JArray.Parse(data);
+
+            var todayItems = items.Where(x => x["dateFrom"].Value<DateTime>() == DateTime.Today);
+
+            foreach (var todayItem in todayItems)
+            {
+                var item = new RestaurantMenuItem();
+
+                if (todayItem["type"].Value<string>() == "polevka")
+                {
+                    item.FoodType = FoodType.Soup;
+                    item.Description = todayItem["name"].Value<string>();
+                    item.Price = todayItem["price"].Value<string>();
+                }
+                else
+                {
+                    item.FoodType = FoodType.Main;
+                    item.Description = todayItem["name"].Value<string>();
+                    item.Price = todayItem["price"].Value<string>();
+                }
+
+                result.Add(item);
+            }
 
             return result;
         }

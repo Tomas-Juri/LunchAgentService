@@ -113,7 +113,7 @@ namespace LunchAgentService.Services.RestaurantService
 
             var items = JArray.Parse(data);
 
-            var todayItems = items.Where(x => x["dateFrom"].Value<DateTime>() == DateTime.Today);
+            var todayItems = items.Where(x => DateTime.TryParse(x["dateFrom"].Value<string>(), out var value) == true && value == DateTime.Today);
 
             foreach (var todayItem in todayItems)
             {

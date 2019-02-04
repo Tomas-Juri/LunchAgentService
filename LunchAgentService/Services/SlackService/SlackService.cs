@@ -105,7 +105,7 @@ namespace LunchAgentService.Services
                     response.Wait();
                     var result = response.Result.Content.ReadAsStringAsync().Result;
 
-                    Log.Debug($"Request posted successfuly. Response: {result}");
+                    Log.Debug($"Request posted successfuly. Response: {response.Result.StatusCode}");
 
                     return result;
                 }
@@ -143,7 +143,7 @@ namespace LunchAgentService.Services
                     response.Wait();
                     stringResponse = response.Result.Content.ReadAsStringAsync().Result;
 
-                    Log.Debug($"Request posted successfuly. Response: {stringResponse}");
+                    Log.Debug($"Request posted successfuly. Response: {response.Result.StatusCode}");
 
                 }
                 catch (Exception e)

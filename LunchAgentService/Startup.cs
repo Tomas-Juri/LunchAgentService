@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Reflection;
-using System.Threading.Tasks;
 using log4net;
 using log4net.Config;
 using LunchAgentService.Services;
-using LunchAgentService.Services.RestaurantService;
-using LunchAgentService.Services.SlackService;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace LunchAgentService.Services.SlackService
+﻿namespace LunchAgentService.Services
 {
     public class SlackServiceSetting 
     {
@@ -10,7 +8,7 @@ namespace LunchAgentService.Services.SlackService
 
         public SlackServiceSetting Clone()
         {
-            return new SlackServiceSetting()
+            return new SlackServiceSetting
             {
                 BotId = BotId,
                 BotToken = BotToken,

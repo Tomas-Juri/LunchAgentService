@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace LunchAgentService.Services.SlackService
+namespace LunchAgentService.Services
 {
     public class SlackChannelHistory
     {

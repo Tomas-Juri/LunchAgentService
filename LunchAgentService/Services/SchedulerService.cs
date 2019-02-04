@@ -2,18 +2,16 @@
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
-using LunchAgentService.Services.RestaurantService;
-using LunchAgentService.Services.SlackService;
 
 namespace LunchAgentService.Services
 {
     public class SchedulerService : HostedService
     {
-        private SlackService.SlackService SlackService { get; set; }
-        private RestaurantService.RestaurantService RestaurantService { get; set; }
+        private SlackService SlackService { get; }
+        private RestaurantService RestaurantService { get; }
         private ILog Log { get; }
 
-        public SchedulerService(RestaurantService.RestaurantService restaurantService, SlackService.SlackService slackService, ILog log)
+        public SchedulerService(RestaurantService restaurantService, SlackService slackService, ILog log)
         {
             RestaurantService = restaurantService;
             SlackService = slackService;
@@ -28,10 +26,14 @@ namespace LunchAgentService.Services
             {
                 if (DateTime.Now.Hour > 11 || DateTime.Now.DayOfWeek == DayOfWeek.Sunday || DateTime.Now.DayOfWeek == DayOfWeek.Saturday)
                 {
+                    Log.Debug("Sleeping until tomorrow");
+
                     await Task.Delay(DateTime.Today.AddHours(7).AddDays(1) - DateTime.Now, cancellationToken);
 
                     continue;
                 }
+
+                Log.Debug("Getting menus");
 
                 var menus = RestaurantService.GetMenus();
 
@@ -40,11 +42,15 @@ namespace LunchAgentService.Services
                 try
                 {
                     SlackService.ProcessMenus(menus);
+
+                    Log.Debug("Menus posted sucessfully");
                 }
                 catch (Exception exception)
                 {
                     Log.Error("Failed to post menus to slack", exception);
                 }
+
+                Log.Debug("Sleeping for 15 minutes");
 
                 await Task.Delay(TimeSpan.FromMinutes(15), cancellationToken);
             }

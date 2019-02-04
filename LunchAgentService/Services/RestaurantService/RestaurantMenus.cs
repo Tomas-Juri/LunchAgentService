@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace LunchAgentService.Services.RestaurantService
+namespace LunchAgentService.Services
 {
     public class RestaurantMenu
     {

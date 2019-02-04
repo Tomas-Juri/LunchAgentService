@@ -6,11 +6,10 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using log4net;
-using LunchAgentService.Services.RestaurantService;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace LunchAgentService.Services.SlackService
+namespace LunchAgentService.Services
 {
     public class SlackService
     {
@@ -47,7 +46,11 @@ namespace LunchAgentService.Services.SlackService
 
         public void ProcessMenus(List<RestaurantMenu> menus)
         {
+            Log.Debug("Getting slack history");
+
             var history = GetSlackChannelHistory();
+
+            Log.Debug("Filtering messages for messages from today");
 
             var todayMessage = history.Messages.FindAll(message => message.Date.Date == DateTime.Today && message.BotId == ServiceSetting.BotId)
                 .OrderByDescending(message => message.Date)
@@ -55,10 +58,14 @@ namespace LunchAgentService.Services.SlackService
 
             if (todayMessage == null)
             {
+                Log.Debug("Posting new menus to slack");
+
                 PostToSlack(menus);
             }
             else
             {
+                Log.Debug("Updating already existing menu on slack");
+
                 UpdateToSlack(menus, todayMessage.Timestamp);
             }
         }
@@ -67,11 +74,7 @@ namespace LunchAgentService.Services.SlackService
         {
             dynamic postRequestObject = GetRequestObjectFromSlackConfiguration();
 
-            Log.Debug("Adding text to request object");
-
             postRequestObject.text = FormatMenuForSlack(menus);
-
-            Log.Debug($"Added text to request object {postRequestObject.text}");
 
             PostToSlack(postRequestObject, PostMessageUri);
         }
@@ -80,12 +83,8 @@ namespace LunchAgentService.Services.SlackService
         {
             dynamic postRequestObject = GetRequestObjectFromSlackConfiguration();
 
-            Log.Debug("Adding text and timestamp to request object");
-
             postRequestObject.text = FormatMenuForSlack(menus);
             postRequestObject.ts = timestamp;
-
-            Log.Debug($"Added text and timestamp to request object {postRequestObject.text}");
 
             PostToSlack(postRequestObject, UpdateMessageUri);
         }
@@ -112,7 +111,7 @@ namespace LunchAgentService.Services.SlackService
                 }
                 catch (Exception e)
                 {
-                    Log.Error("Error while posting request", e);
+                    Log.Error("Failed posting request", e);
 
                     return null;
                 }
@@ -121,8 +120,6 @@ namespace LunchAgentService.Services.SlackService
 
         private SlackChannelHistory GetSlackChannelHistory()
         {
-            Log.Debug("Getting timestamp of last message posted to slack");
-
             var stringResponse = "";
 
             var formData = new Dictionary<string, string>();
@@ -151,7 +148,7 @@ namespace LunchAgentService.Services.SlackService
                 }
                 catch (Exception e)
                 {
-                    Log.Error("Error while posting request", e);
+                    Log.Error("Failed posting request", e);
                 }
             }
 
@@ -180,8 +177,6 @@ namespace LunchAgentService.Services.SlackService
 
         private ExpandoObject GetRequestObjectFromSlackConfiguration()
         {
-            Log.Debug("Creating request object from slack configuration");
-
             dynamic result = new ExpandoObject();
 
             lock (_serviceSetting)
@@ -190,8 +185,6 @@ namespace LunchAgentService.Services.SlackService
                 result.channel = _serviceSetting.ChannelName;
                 result.bot_id = _serviceSetting.BotId;
             }
-
-            Log.Debug($"Created request object: {JObject.FromObject(result).ToString()}");
 
             return result;
         }

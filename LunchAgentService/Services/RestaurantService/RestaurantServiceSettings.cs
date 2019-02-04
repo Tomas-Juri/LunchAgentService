@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace LunchAgentService.Services.RestaurantService
+namespace LunchAgentService.Services
 {
     public class RestaurantServiceSetting 
     {

@@ -7,11 +7,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using log4net;
-using MongoDB.Bson.IO;
 using Newtonsoft.Json.Linq;
-using JsonConvert = Newtonsoft.Json.JsonConvert;
 
-namespace LunchAgentService.Services.RestaurantService
+namespace LunchAgentService.Services
 {
     public class RestaurantService
     {
@@ -56,18 +54,23 @@ namespace LunchAgentService.Services.RestaurantService
             foreach (var setting in restaurants)
             {
                 if (setting.Name.Contains("Bistrotéka"))
-                {
                     using (var client = new HttpClient())
                     {
-                        var data = client.GetStringAsync(setting.Url).Result;
-
-                        result.Add(new RestaurantMenu()
+                        try
                         {
-                            Items = ParseMenuFromBistroteka(data),
-                            Restaurant =  setting
-                        });
+                            var data = client.GetStringAsync(setting.Url).Result;
+
+                            result.Add(new RestaurantMenu()
+                            {
+                                Items = ParseMenuFromBistroteka(data),
+                                Restaurant = setting
+                            });
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Debug($"Failed to get menu from {setting.Name}", e);
+                        }
                     }
-                }
 
                 using (var client = new WebClient())
                 {
@@ -81,7 +84,7 @@ namespace LunchAgentService.Services.RestaurantService
                     }
                     catch (Exception e)
                     {
-                        Log.Debug(e);
+                        Log.Debug($"Failed to get menu from {setting.Name}", e);
                     }
                 }
 
@@ -99,8 +102,10 @@ namespace LunchAgentService.Services.RestaurantService
                 }
                 catch (Exception e)
                 {
-                    Log.Debug(e);
+                    Log.Debug($"Failed to parse menu from {setting.Name}", e);
                 }
+
+                Log.Debug($"Sucessfully got menu from {setting.Name}");
             }
 
 

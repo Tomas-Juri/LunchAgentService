@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LunchAgentService.Services.RestaurantService;
-using LunchAgentService.Services.SlackService;
+﻿using System.ComponentModel.DataAnnotations;
+using LunchAgentService.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LunchAgentService.Controllers

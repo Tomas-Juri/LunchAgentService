@@ -35,6 +35,7 @@ namespace LunchAgentService.Services
                 }
             }
         }
+        public bool AlreadyPosted { get; set; }
 
         private ILog Log { get; }
 
@@ -56,11 +57,13 @@ namespace LunchAgentService.Services
                 .OrderByDescending(message => message.Date)
                 .FirstOrDefault();
 
-            if (todayMessage == null)
+            if (AlreadyPosted == false)
             {
                 Log.Debug("Posting new menus to slack");
 
                 PostToSlack(menus);
+
+                AlreadyPosted = true;
             }
             else
             {
@@ -68,6 +71,19 @@ namespace LunchAgentService.Services
 
                 UpdateToSlack(menus, todayMessage.Timestamp);
             }
+
+            //if (todayMessage == null)
+            //{
+            //    Log.Debug("Posting new menus to slack");
+
+            //    PostToSlack(menus);
+            //}
+            //else
+            //{
+            //    Log.Debug("Updating already existing menu on slack");
+
+            //    UpdateToSlack(menus, todayMessage.Timestamp);
+            //}
         }
 
         public void PostToSlack(List<RestaurantMenu> menus)

@@ -35,8 +35,6 @@ namespace LunchAgentService.Services
                 }
             }
         }
-        public bool AlreadyPosted { get; set; }
-
         private ILog Log { get; }
 
         public SlackService(SlackServiceSetting serviceSetting, ILog log)
@@ -53,17 +51,20 @@ namespace LunchAgentService.Services
 
             Log.Debug("Filtering messages for messages from today");
 
-            var todayMessage = history.Messages.FindAll(message => message.Date.Date == DateTime.Today && message.BotId == ServiceSetting.BotId)
+            var todayMessages = history.Messages.FindAll(message =>
+                message.Date.Date == DateTime.Today && message.BotId == ServiceSetting.BotId);
+
+            Log.Debug($"I have {todayMessages.Count} messages from myself today");
+
+            var todayMessage = todayMessages
                 .OrderByDescending(message => message.Date)
                 .FirstOrDefault();
 
-            if (AlreadyPosted == false)
+            if (todayMessage == null)
             {
                 Log.Debug("Posting new menus to slack");
 
                 PostToSlack(menus);
-
-                AlreadyPosted = true;
             }
             else
             {
@@ -71,19 +72,6 @@ namespace LunchAgentService.Services
 
                 UpdateToSlack(menus, todayMessage.Timestamp);
             }
-
-            //if (todayMessage == null)
-            //{
-            //    Log.Debug("Posting new menus to slack");
-
-            //    PostToSlack(menus);
-            //}
-            //else
-            //{
-            //    Log.Debug("Updating already existing menu on slack");
-
-            //    UpdateToSlack(menus, todayMessage.Timestamp);
-            //}
         }
 
         public void PostToSlack(List<RestaurantMenu> menus)
@@ -165,6 +153,8 @@ namespace LunchAgentService.Services
                 catch (Exception e)
                 {
                     Log.Error("Failed posting request", e);
+
+                    return new SlackChannelHistory();
                 }
             }
 

@@ -31,8 +31,7 @@ namespace LunchAgentService.Services
         {
             get
             {
-                return new DateTime(1970, 1, 1).AddSeconds((long)Convert.ToDouble(Timestamp, CultureInfo.InvariantCulture));
-
+                return new DateTime(1970, 1, 1, 1, 0, 0).AddSeconds((long)Convert.ToDouble(Timestamp, CultureInfo.InvariantCulture));
             }
         }
     }

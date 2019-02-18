@@ -28,8 +28,6 @@ namespace LunchAgentService.Services
                 {
                     Log.Debug("Sleeping until tomorrow");
 
-                    SlackService.AlreadyPosted = false;
-
                     await Task.Delay(DateTime.Today.AddHours(7).AddDays(1) - DateTime.Now, cancellationToken);
 
                     continue;

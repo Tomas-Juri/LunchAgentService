@@ -28,11 +28,16 @@ namespace LunchAgentService
             XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
 
             var logger = LogManager.GetLogger(typeof(Startup));
+            var settingService = new SettingService(
+                Configuration.GetSection("SettingPath").Get<string>(),
+                Configuration.GetSection("SlackServiceSetting").Get<SlackServiceSetting>(),
+                Configuration.GetSection("RestaurantServiceSettings").Get<RestaurantServiceSetting>(),
+                logger);
 
             services.AddSingleton(m => logger);
-            services.AddSingleton(m => new SlackService(Configuration.GetSection("SlackServiceSetting").Get<SlackServiceSetting>(), logger));
-            services.AddSingleton(m => new RestaurantService(Configuration.GetSection("RestaurantServiceSettings").Get<RestaurantServiceSetting>(), logger));
-
+            services.AddSingleton(m => settingService);
+            services.AddSingleton(m => new SlackService(settingService, logger));
+            services.AddSingleton(m => new RestaurantService(settingService, logger));
             services.AddSingleton<IHostedService, SchedulerService>();
 
             services.AddMvc();

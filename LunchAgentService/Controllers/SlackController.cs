@@ -11,13 +11,15 @@ namespace LunchAgentService.Controllers
     {
         private RestaurantService RestaurantService { get; }
         private SlackService SlackService { get; }
+        private SettingService SettingService { get; }
         private ILog Log { get; }
 
-        public SlackController(RestaurantService restaurantService, SlackService slackService, ILog Log)
+        public SlackController(RestaurantService restaurantService, SlackService slackService, SettingService settingService, ILog log)
         {
             RestaurantService = restaurantService;
             SlackService = slackService;
-            this.Log = Log;
+            SettingService = settingService;
+            Log = log;
         }
 
         [HttpPost("forcePost")]
@@ -42,13 +44,13 @@ namespace LunchAgentService.Controllers
         [HttpGet("setting")]
         public IActionResult GetSetting()
         {
-            return new JsonResult(SlackService.ServiceSetting);
+            return new JsonResult(SettingService.GetSlackSetting());
         }
 
         [HttpPost("setting")]
         public IActionResult SetSetting([FromBody][Required]SlackServiceSetting setting)
         {
-            SlackService.ServiceSetting = setting;
+            SettingService.SaveSlackSetting(setting);
 
             return new OkResult();
         }

@@ -8,10 +8,12 @@ namespace LunchAgentService.Controllers
     public class RestaurantController : Controller
     {
         private RestaurantService RestaurantService { get; }
+        private SettingService SettingService { get; }
 
-        public RestaurantController(RestaurantService restaurantService)
+        public RestaurantController(RestaurantService restaurantService, SettingService settingService)
         {
             RestaurantService = restaurantService;
+            SettingService = settingService;
         }
 
         [HttpGet("menus")]
@@ -23,13 +25,13 @@ namespace LunchAgentService.Controllers
         [HttpGet("setting")]
         public IActionResult GetSetting()
         {
-            return new JsonResult(RestaurantService.ServiceSetting);
+            return new JsonResult(SettingService.GetRestaurantSetting());
         }
 
         [HttpPost("setting")]
         public IActionResult SetSetting([FromBody][Required]RestaurantServiceSetting setting)
         {
-            RestaurantService.ServiceSetting = setting;
+            SettingService.SaveRestaurantSettting(setting);
 
             return new OkResult();
         }

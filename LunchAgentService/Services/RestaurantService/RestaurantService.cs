@@ -13,32 +13,13 @@ namespace LunchAgentService.Services
 {
     public class RestaurantService
     {
-        public ILog Log { get; }
+        private ILog Log { get; }
+        private SettingService SettingService { get; }
 
-        private RestaurantServiceSetting _serviceSetting;
-
-        public RestaurantServiceSetting ServiceSetting
-        {
-            get
-            {
-                lock (_serviceSetting)
-                {
-                    return _serviceSetting.Clone();
-                }
-            }
-            set
-            {
-                lock (_serviceSetting)
-                {
-                    _serviceSetting = value;
-                }
-            }
-        }
-
-        public RestaurantService(RestaurantServiceSetting restaurantSettings, ILog log)
+        public RestaurantService(SettingService settingService, ILog log)
         {
             Log = log;
-            _serviceSetting = restaurantSettings;
+            SettingService = settingService;
         }
 
         public List<RestaurantMenu> GetMenus()
@@ -49,7 +30,7 @@ namespace LunchAgentService.Services
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-            var restaurants = ServiceSetting.Restaurants;
+            var restaurants = SettingService.GetRestaurantSetting().Restaurants;
 
             foreach (var setting in restaurants)
             {

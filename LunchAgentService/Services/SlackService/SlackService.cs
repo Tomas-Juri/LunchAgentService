@@ -17,42 +17,27 @@ namespace LunchAgentService.Services
         private static readonly string UpdateMessageUri = "https://slack.com/api/chat.update";
         private static readonly string ChatHistoryUri = "https://slack.com/api/channels.history";
 
-        private SlackServiceSetting _serviceSetting;
-        public SlackServiceSetting ServiceSetting
-        {
-            get
-            {
-                lock (_serviceSetting)
-                {
-                    return _serviceSetting.Clone();
-                }
-            }
-            set
-            {
-                lock (_serviceSetting)
-                {
-                    _serviceSetting = value;
-                }
-            }
-        }
         private ILog Log { get; }
+        private SettingService SettingService { get; }
 
-        public SlackService(SlackServiceSetting serviceSetting, ILog log)
+        public SlackService(SettingService settingService, ILog log)
         {
-            _serviceSetting = serviceSetting;
+            SettingService = settingService;
             Log = log;
         }
 
         public void ProcessMenus(List<RestaurantMenu> menus)
         {
+            var settings = SettingService.GetSlackSetting();
+
             Log.Debug("Getting slack history");
 
-            var history = GetSlackChannelHistory();
+            var history = GetSlackChannelHistory(settings);
 
             Log.Debug("Filtering messages for messages from today");
 
             var todayMessages = history.Messages.FindAll(message =>
-                message.Date.Date == DateTime.Today && message.BotId == ServiceSetting.BotId);
+                message.Date.Date == DateTime.Today && message.BotId == settings.BotId);
 
             Log.Debug($"I have {todayMessages.Count} messages from myself today");
 
@@ -64,28 +49,28 @@ namespace LunchAgentService.Services
             {
                 Log.Debug("Posting new menus to slack");
 
-                PostToSlack(menus);
+                PostToSlack(menus, settings);
             }
             else
             {
                 Log.Debug("Updating already existing menu on slack");
 
-                UpdateToSlack(menus, todayMessage.Timestamp);
+                UpdateToSlack(menus, todayMessage.Timestamp, settings);
             }
         }
 
-        public void PostToSlack(List<RestaurantMenu> menus)
+        public void PostToSlack(List<RestaurantMenu> menus, SlackServiceSetting settings)
         {
-            dynamic postRequestObject = GetRequestObjectFromSlackConfiguration();
+            dynamic postRequestObject = GetRequestObjectFromSlackConfiguration(settings);
 
             postRequestObject.text = FormatMenuForSlack(menus);
 
             PostToSlack(postRequestObject, PostMessageUri);
         }
 
-        public void UpdateToSlack(List<RestaurantMenu> menus, string timestamp)
+        public void UpdateToSlack(List<RestaurantMenu> menus, string timestamp, SlackServiceSetting settings)
         {
-            dynamic postRequestObject = GetRequestObjectFromSlackConfiguration();
+            dynamic postRequestObject = GetRequestObjectFromSlackConfiguration(settings);
 
             postRequestObject.text = FormatMenuForSlack(menus);
             postRequestObject.ts = timestamp;
@@ -122,7 +107,7 @@ namespace LunchAgentService.Services
             }
         }
 
-        private SlackChannelHistory GetSlackChannelHistory()
+        private SlackChannelHistory GetSlackChannelHistory(SlackServiceSetting slackSetting)
         {
             var stringResponse = "";
 
@@ -132,7 +117,6 @@ namespace LunchAgentService.Services
             {
                 Log.Debug($"Posting request to slack uri: {ChatHistoryUri}");
 
-                var slackSetting = ServiceSetting;
                 formData["token"] = slackSetting.BotToken;
                 formData["channel"] = slackSetting.ChannelName;
                 formData["bot_id"] = slackSetting.BotId;
@@ -181,16 +165,13 @@ namespace LunchAgentService.Services
             return string.Join(Environment.NewLine + Environment.NewLine, result);
         }
 
-        private ExpandoObject GetRequestObjectFromSlackConfiguration()
+        private ExpandoObject GetRequestObjectFromSlackConfiguration(SlackServiceSetting slackSetting)
         {
             dynamic result = new ExpandoObject();
 
-            lock (_serviceSetting)
-            {
-                result.token = _serviceSetting.BotToken;
-                result.channel = _serviceSetting.ChannelName;
-                result.bot_id = _serviceSetting.BotId;
-            }
+            result.token = slackSetting.BotToken;
+            result.channel = slackSetting.ChannelName;
+            result.bot_id = slackSetting.BotId;
 
             return result;
         }

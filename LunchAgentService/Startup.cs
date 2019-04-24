@@ -40,6 +40,8 @@ namespace LunchAgentService
             services.AddSingleton(m => new RestaurantService(settingService, logger));
             services.AddSingleton<IHostedService, SchedulerService>();
 
+            services.AddCors();
+
             services.AddMvc();
         }
 
@@ -59,6 +61,11 @@ namespace LunchAgentService
             app.UseStaticFiles();
 
             app.UseAuthentication();
+
+            app.UseCors(
+                options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()
+            );
+
             app.UseMvc();
         }
     }

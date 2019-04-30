@@ -7,19 +7,21 @@ using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using log4net;
+using LunchAgentService.Entities;
+using LunchAgentService.Services.DatabaseService;
 using Newtonsoft.Json.Linq;
 
 namespace LunchAgentService.Services
 {
-    public class RestaurantService
+    public class RestaurantService : IRestaurantService
     {
         private ILog Log { get; }
-        private SettingService SettingService { get; }
+        private IDatabaseService DatabaseService { get; }
 
-        public RestaurantService(SettingService settingService, ILog log)
+        public RestaurantService(IDatabaseService databaseService, ILog log)
         {
             Log = log;
-            SettingService = settingService;
+            DatabaseService = databaseService;
         }
 
         public List<RestaurantMenu> GetMenus()
@@ -30,7 +32,7 @@ namespace LunchAgentService.Services
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-            var restaurants = SettingService.GetRestaurantSetting().Restaurants;
+            var restaurants = DatabaseService.Get<Restaurant>();
 
             foreach (var setting in restaurants)
             {
@@ -221,5 +223,6 @@ namespace LunchAgentService.Services
 
             return string.Empty;
         }
+
     }
 }

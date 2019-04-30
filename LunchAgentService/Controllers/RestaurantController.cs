@@ -1,19 +1,23 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using LunchAgentService.Entities;
 using LunchAgentService.Services;
+using LunchAgentService.Services.DatabaseService;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 
 namespace LunchAgentService.Controllers
 {
     [Route("api/restaurant")]
     public class RestaurantController : Controller
     {
-        private RestaurantService RestaurantService { get; }
-        private SettingService SettingService { get; }
+        private IRestaurantService RestaurantService { get; }
+        private IDatabaseService DatabaseService { get; }
 
-        public RestaurantController(RestaurantService restaurantService, SettingService settingService)
+        public RestaurantController(IRestaurantService restaurantService, IDatabaseService databaseService)
         {
             RestaurantService = restaurantService;
-            SettingService = settingService;
+            DatabaseService = databaseService;
         }
 
         [HttpGet("menus")]
@@ -25,15 +29,26 @@ namespace LunchAgentService.Controllers
         [HttpGet("setting")]
         public IActionResult GetSetting()
         {
-            return new JsonResult(SettingService.GetRestaurantSetting());
+            return new JsonResult(DatabaseService.Get<Restaurant>());
         }
 
-        [HttpPost("setting")]
-        public IActionResult SetSetting([FromBody][Required]RestaurantServiceSetting setting)
+        [HttpGet("restaurant")]
+        public IActionResult GetRestaurant([Required][FromBody]ObjectId id)
         {
-            SettingService.SaveRestaurantSettting(setting);
-
-            return new OkResult();
+            return new JsonResult(DatabaseService.Get<Restaurant>(id)); 
         }
+
+        [HttpDelete("restaurant")]
+        public IActionResult DeleteRestaurant([Required][FromBody]ObjectId id)
+        {
+            return new JsonResult(DatabaseService.Delete<Restaurant>(id));
+        }
+
+        [HttpPost("restaurant")]
+        public IActionResult AddOrUpdateRestaurant([Required][FromBody]Restaurant restaurant)
+        {
+            return new JsonResult(DatabaseService.AddOrUpdate(restaurant));
+        }
+
     }
 }

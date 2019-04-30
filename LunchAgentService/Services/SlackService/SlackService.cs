@@ -6,29 +6,31 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using log4net;
+using LunchAgentService.Entities;
+using LunchAgentService.Services.DatabaseService;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace LunchAgentService.Services
 {
-    public class SlackService
+    public class SlackService : ISlackService
     {
         private static readonly string PostMessageUri = "https://slack.com/api/chat.postMessage";
         private static readonly string UpdateMessageUri = "https://slack.com/api/chat.update";
         private static readonly string ChatHistoryUri = "https://slack.com/api/channels.history";
 
         private ILog Log { get; }
-        private SettingService SettingService { get; }
+        private IDatabaseService DatabaseService { get; }
 
-        public SlackService(SettingService settingService, ILog log)
+        public SlackService(IDatabaseService databaseService, ILog log)
         {
-            SettingService = settingService;
+            DatabaseService = databaseService;
             Log = log;
         }
 
         public void ProcessMenus(List<RestaurantMenu> menus)
         {
-            var settings = SettingService.GetSlackSetting();
+            var settings = DatabaseService.Get<SlackSetting>().First();
 
             Log.Debug("Getting slack history");
 
@@ -59,7 +61,7 @@ namespace LunchAgentService.Services
             }
         }
 
-        public void PostToSlack(List<RestaurantMenu> menus, SlackServiceSetting settings)
+        public void PostToSlack(List<RestaurantMenu> menus, SlackSetting settings)
         {
             dynamic postRequestObject = GetRequestObjectFromSlackConfiguration(settings);
 
@@ -68,7 +70,7 @@ namespace LunchAgentService.Services
             PostToSlack(postRequestObject, PostMessageUri);
         }
 
-        public void UpdateToSlack(List<RestaurantMenu> menus, string timestamp, SlackServiceSetting settings)
+        public void UpdateToSlack(List<RestaurantMenu> menus, string timestamp, SlackSetting settings)
         {
             dynamic postRequestObject = GetRequestObjectFromSlackConfiguration(settings);
 
@@ -107,7 +109,7 @@ namespace LunchAgentService.Services
             }
         }
 
-        private SlackChannelHistory GetSlackChannelHistory(SlackServiceSetting slackSetting)
+        private SlackChannelHistory GetSlackChannelHistory(SlackSetting slackSetting)
         {
             var stringResponse = "";
 
@@ -165,7 +167,7 @@ namespace LunchAgentService.Services
             return string.Join(Environment.NewLine + Environment.NewLine, result);
         }
 
-        private ExpandoObject GetRequestObjectFromSlackConfiguration(SlackServiceSetting slackSetting)
+        private ExpandoObject GetRequestObjectFromSlackConfiguration(SlackSetting slackSetting)
         {
             dynamic result = new ExpandoObject();
 

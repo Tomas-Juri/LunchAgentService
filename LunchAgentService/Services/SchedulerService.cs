@@ -7,11 +7,11 @@ namespace LunchAgentService.Services
 {
     public class SchedulerService : HostedService
     {
-        private SlackService SlackService { get; }
-        private RestaurantService RestaurantService { get; }
+        private ISlackService SlackService { get; }
+        private IRestaurantService RestaurantService { get; }
         private ILog Log { get; }
 
-        public SchedulerService(RestaurantService restaurantService, SlackService slackService, ILog log)
+        public SchedulerService(IRestaurantService restaurantService, ISlackService slackService, ILog log)
         {
             RestaurantService = restaurantService;
             SlackService = slackService;

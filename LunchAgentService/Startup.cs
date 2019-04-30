@@ -1,8 +1,13 @@
-﻿using System.IO;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using log4net;
 using log4net.Config;
+using LunchAgentService.Entities;
 using LunchAgentService.Services;
+using LunchAgentService.Services.DatabaseService;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -28,21 +33,31 @@ namespace LunchAgentService
             XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
 
             var logger = LogManager.GetLogger(typeof(Startup));
-            var settingService = new SettingService(
-                Configuration.GetSection("SettingPath").Get<string>(),
-                Configuration.GetSection("SlackServiceSetting").Get<SlackServiceSetting>(),
-                Configuration.GetSection("RestaurantServiceSettings").Get<RestaurantServiceSetting>(),
-                logger);
+            var databaseService = new DatabaseService(Configuration["connectionString"], Configuration["databaseName"], logger);
+
+            LoadConfigFileIntoDatabase(Configuration, databaseService);
 
             services.AddSingleton(m => logger);
-            services.AddSingleton(m => settingService);
-            services.AddSingleton(m => new SlackService(settingService, logger));
-            services.AddSingleton(m => new RestaurantService(settingService, logger));
+            services.AddSingleton<IDatabaseService>(m => databaseService);
+            services.AddSingleton<ISlackService>(m => new SlackService(databaseService, logger));
+            services.AddSingleton<IRestaurantService>(m => new RestaurantService(databaseService, logger));
             services.AddSingleton<IHostedService, SchedulerService>();
 
             services.AddCors();
 
             services.AddMvc();
+        }
+
+        private void LoadConfigFileIntoDatabase(IConfiguration configuration, DatabaseService databaseService)
+        {
+            var slackSetting = databaseService.Get<SlackSetting>();
+            var restaurantSetting = databaseService.Get<Restaurant>();
+
+            if (slackSetting.Any() == false)
+                databaseService.AddOrUpdate(configuration.GetSection("SlackServiceSetting").Get<SlackSetting>());
+
+            if (restaurantSetting.Any() == false)
+                databaseService.AddOrUpdate(configuration.GetSection("RestaurantServiceSettings").Get<Restaurant[]>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

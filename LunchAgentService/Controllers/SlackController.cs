@@ -1,7 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using log4net;
+using LunchAgentService.Entities;
 using LunchAgentService.Services;
+using LunchAgentService.Services.DatabaseService;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LunchAgentService.Controllers
@@ -9,16 +12,16 @@ namespace LunchAgentService.Controllers
     [Route("api/slack")]
     public class SlackController : Controller
     {
-        private RestaurantService RestaurantService { get; }
-        private SlackService SlackService { get; }
-        private SettingService SettingService { get; }
+        private IRestaurantService RestaurantService { get; }
+        private ISlackService SlackService { get; }
+        private IDatabaseService DatabaseService { get; }
         private ILog Log { get; }
 
-        public SlackController(RestaurantService restaurantService, SlackService slackService, SettingService settingService, ILog log)
+        public SlackController(IRestaurantService restaurantService, ISlackService slackService, IDatabaseService databaseService, ILog log)
         {
             RestaurantService = restaurantService;
             SlackService = slackService;
-            SettingService = settingService;
+            DatabaseService = databaseService;
             Log = log;
         }
 
@@ -44,15 +47,13 @@ namespace LunchAgentService.Controllers
         [HttpGet("setting")]
         public IActionResult GetSetting()
         {
-            return new JsonResult(SettingService.GetSlackSetting());
+            return new JsonResult(DatabaseService.Get<SlackSetting>().FirstOrDefault());
         }
 
         [HttpPost("setting")]
-        public IActionResult SetSetting([FromBody][Required]SlackServiceSetting setting)
+        public IActionResult SetSetting([FromBody][Required]SlackSetting setting)
         {
-            SettingService.SaveSlackSetting(setting);
-
-            return new OkResult();
+            return new JsonResult(DatabaseService.AddOrUpdate(setting));
         }
     }
 }

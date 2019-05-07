@@ -6,6 +6,7 @@ using LunchAgentService.Entities;
 using LunchAgentService.Services;
 using LunchAgentService.Services.DatabaseService;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 
 namespace LunchAgentService.Controllers
 {
@@ -40,20 +41,19 @@ namespace LunchAgentService.Controllers
 
                 return new StatusCodeResult(500);
             }
-
             return new OkResult();
         }
 
         [HttpGet("setting")]
         public IActionResult GetSetting()
         {
-            return new JsonResult(DatabaseService.Get<SlackSetting>().FirstOrDefault());
+            return new JsonResult(DatabaseService.Get<SlackSettingMongo>().FirstOrDefault()?.ToApi());
         }
 
         [HttpPost("setting")]
-        public IActionResult SetSetting([FromBody][Required]SlackSetting setting)
+        public IActionResult SetSetting([FromBody][Required]SlackSettingApi setting)
         {
-            return new JsonResult(DatabaseService.AddOrUpdate(setting));
+            return new JsonResult(DatabaseService.AddOrUpdate(setting.ToMongo()).ToApi());
         }
     }
 }

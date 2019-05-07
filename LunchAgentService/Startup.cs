@@ -50,14 +50,14 @@ namespace LunchAgentService
 
         private void LoadConfigFileIntoDatabase(IConfiguration configuration, DatabaseService databaseService)
         {
-            var slackSetting = databaseService.Get<SlackSetting>();
-            var restaurantSetting = databaseService.Get<Restaurant>();
+            var slackSetting = databaseService.Get<SlackSettingMongo>();
+            var restaurantSetting = databaseService.Get<RestaurantMongo>();
 
             if (slackSetting.Any() == false)
-                databaseService.AddOrUpdate(configuration.GetSection("SlackServiceSetting").Get<SlackSetting>());
+                databaseService.AddOrUpdate(configuration.GetSection("SlackServiceSetting").Get<SlackSettingMongo>());
 
             if (restaurantSetting.Any() == false)
-                databaseService.AddOrUpdate(configuration.GetSection("RestaurantServiceSettings").Get<Restaurant[]>());
+                databaseService.AddOrUpdate(configuration.GetSection("RestaurantServiceSettings").Get<RestaurantMongo[]>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

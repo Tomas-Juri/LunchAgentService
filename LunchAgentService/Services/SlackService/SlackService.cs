@@ -30,7 +30,7 @@ namespace LunchAgentService.Services
 
         public void ProcessMenus(List<RestaurantMenu> menus)
         {
-            var settings = DatabaseService.Get<SlackSetting>().First();
+            var settings = DatabaseService.Get<SlackSettingMongo>().First();
 
             Log.Debug("Getting slack history");
 
@@ -61,7 +61,7 @@ namespace LunchAgentService.Services
             }
         }
 
-        public void PostToSlack(List<RestaurantMenu> menus, SlackSetting settings)
+        public void PostToSlack(List<RestaurantMenu> menus, SlackSettingMongo settings)
         {
             dynamic postRequestObject = GetRequestObjectFromSlackConfiguration(settings);
 
@@ -70,7 +70,7 @@ namespace LunchAgentService.Services
             PostToSlack(postRequestObject, PostMessageUri);
         }
 
-        public void UpdateToSlack(List<RestaurantMenu> menus, string timestamp, SlackSetting settings)
+        public void UpdateToSlack(List<RestaurantMenu> menus, string timestamp, SlackSettingMongo settings)
         {
             dynamic postRequestObject = GetRequestObjectFromSlackConfiguration(settings);
 
@@ -109,7 +109,7 @@ namespace LunchAgentService.Services
             }
         }
 
-        private SlackChannelHistory GetSlackChannelHistory(SlackSetting slackSetting)
+        private SlackChannelHistory GetSlackChannelHistory(SlackSettingMongo slackSetting)
         {
             var stringResponse = "";
 
@@ -167,7 +167,7 @@ namespace LunchAgentService.Services
             return string.Join(Environment.NewLine + Environment.NewLine, result);
         }
 
-        private ExpandoObject GetRequestObjectFromSlackConfiguration(SlackSetting slackSetting)
+        private ExpandoObject GetRequestObjectFromSlackConfiguration(SlackSettingMongo slackSetting)
         {
             dynamic result = new ExpandoObject();
 

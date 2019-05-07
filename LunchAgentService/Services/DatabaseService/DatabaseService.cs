@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using log4net;
 using LunchAgentService.Entities;
@@ -43,7 +44,7 @@ namespace LunchAgentService.Services.DatabaseService
 
             var collection = Database.GetCollection<T>(typeof(T).Name);
 
-            if (entity.Id == ObjectId.Empty ||  collection.Find(Builders<T>.Filter.Eq("_id", entity.Id)).CountDocuments() == 0)
+            if (entity.Id == null ||  collection.Find(Builders<T>.Filter.Eq("_id", entity.Id)).CountDocuments() == 0)
             {
                 collection.InsertOne(entity);
 

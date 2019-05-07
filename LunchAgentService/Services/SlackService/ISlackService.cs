@@ -5,8 +5,8 @@ namespace LunchAgentService.Services
 {
     public interface ISlackService
     {
-        void PostToSlack(List<RestaurantMenu> menus, SlackSetting settings);
+        void PostToSlack(List<RestaurantMenu> menus, SlackSettingMongo settings);
         void ProcessMenus(List<RestaurantMenu> menus);
-        void UpdateToSlack(List<RestaurantMenu> menus, string timestamp, SlackSetting settings);
+        void UpdateToSlack(List<RestaurantMenu> menus, string timestamp, SlackSettingMongo settings);
     }
 }

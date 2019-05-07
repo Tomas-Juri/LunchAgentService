@@ -32,7 +32,7 @@ namespace LunchAgentService.Services
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-            var restaurants = DatabaseService.Get<Restaurant>();
+            var restaurants = DatabaseService.Get<RestaurantMongo>();
 
             foreach (var setting in restaurants)
             {

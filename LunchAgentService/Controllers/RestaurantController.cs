@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using LunchAgentService.Entities;
 using LunchAgentService.Services;
 using LunchAgentService.Services.DatabaseService;
@@ -29,19 +30,25 @@ namespace LunchAgentService.Controllers
         [HttpGet("setting")]
         public IActionResult GetSetting()
         {
-            return new JsonResult(DatabaseService.Get<Restaurant>());
+            return new JsonResult(DatabaseService.Get<RestaurantMongo>().Select(x => x.ToApi()));
         }
 
         [HttpGet("restaurant")]
-        public IActionResult GetRestaurant([Required][FromBody]ObjectId id)
+        public IActionResult GetRestaurant([FromRoute][Required]string id)
         {
-            return new JsonResult(DatabaseService.Get<Restaurant>(id)); 
+            return new JsonResult(DatabaseService.Get<RestaurantMongo>(ObjectId.Parse(id)).ToApi());
         }
 
         [HttpDelete("restaurant")]
-        public IActionResult DeleteRestaurant([Required][FromBody]ObjectId id)
+        public IActionResult DeleteRestaurant([FromBody][Required]string id)
         {
-            return new JsonResult(DatabaseService.Delete<Restaurant>(id));
+            return new JsonResult(DatabaseService.Delete<RestaurantMongo>(ObjectId.Parse(id)));
+        }
+
+        [HttpPost("restaurant")]
+        public IActionResult AddOrUpdateRestaurant([FromBody][Required]RestaurantApi restaurant)
+        {
+            return new JsonResult(DatabaseService.AddOrUpdate(restaurant.ToMongo()).ToApi());
         }
 
         [HttpPost("restaurant")]

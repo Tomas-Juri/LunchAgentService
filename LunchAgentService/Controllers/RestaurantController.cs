@@ -50,12 +50,5 @@ namespace LunchAgentService.Controllers
         {
             return new JsonResult(DatabaseService.AddOrUpdate(restaurant.ToMongo()).ToApi());
         }
-
-        [HttpPost("restaurant")]
-        public IActionResult AddOrUpdateRestaurant([Required][FromBody]Restaurant restaurant)
-        {
-            return new JsonResult(DatabaseService.AddOrUpdate(restaurant));
-        }
-
     }
 }

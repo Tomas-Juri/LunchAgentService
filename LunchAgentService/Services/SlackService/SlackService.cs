@@ -80,6 +80,24 @@ namespace LunchAgentService.Services
             PostToSlack(postRequestObject, UpdateMessageUri);
         }
 
+        public IList<Reaction> GetReactionsToLunch()
+        {
+            var settings = DatabaseService.Get<SlackSettingMongo>().First();
+
+            var channelHistory = GetSlackChannelHistory(settings);
+
+            var promptingMessage = channelHistory.Messages
+                .FirstOrDefault(x => x.Date.Date == DateTime.Today &&
+                                     x.Text.Contains("Kam na oběd?"));
+
+            if (promptingMessage == null)
+            {
+                return new List<Reaction>();
+            }
+
+            return promptingMessage.Reactions.ToList();
+        }
+
         private string PostToSlack(dynamic requestObject, string requestUri)
         {
             Log.Debug($"Posting request to slack uri: {requestUri}");

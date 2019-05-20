@@ -30,8 +30,8 @@ namespace LunchAgentService.Services
         [JsonProperty("reply_count")]
         public int ReplyCount { get; set; }
 
-        [JsonProperty("replies")]
-        public object Replies { get; set; }
+        [JsonProperty("reactions")]
+        public Reaction[] Reactions { get; set; }
 
         [JsonProperty("bot_id")]
         public string BotId { get; set; }
@@ -44,5 +44,17 @@ namespace LunchAgentService.Services
                 return new DateTime(1970, 1, 1, 2, 0, 0).AddSeconds((long)Convert.ToDouble(Timestamp, CultureInfo.InvariantCulture));
             }
         }
+    }
+
+    public class Reaction
+    {
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("count")]
+        public int Count { get; set; }
+
+        [JsonProperty("users")]
+        public string[] Users { get; set; }
     }
 }

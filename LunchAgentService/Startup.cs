@@ -8,6 +8,7 @@ using log4net.Config;
 using LunchAgentService.Entities;
 using LunchAgentService.Services;
 using LunchAgentService.Services.DatabaseService;
+using LunchAgentService.Services.MachineLearningService;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -41,6 +42,7 @@ namespace LunchAgentService
             services.AddSingleton<IDatabaseService>(m => databaseService);
             services.AddSingleton<ISlackService>(m => new SlackService(databaseService, logger));
             services.AddSingleton<IRestaurantService>(m => new RestaurantService(databaseService, logger));
+            services.AddSingleton<IMachineLearningService, MachineLearningService>();
             services.AddSingleton<IHostedService, SchedulerService>();
 
             services.AddCors();

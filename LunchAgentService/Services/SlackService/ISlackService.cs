@@ -8,5 +8,6 @@ namespace LunchAgentService.Services
         void PostToSlack(List<RestaurantMenu> menus, SlackSettingMongo settings);
         void ProcessMenus(List<RestaurantMenu> menus);
         void UpdateToSlack(List<RestaurantMenu> menus, string timestamp, SlackSettingMongo settings);
+        IList<Reaction> GetReactionsToLunch();
     }
 }

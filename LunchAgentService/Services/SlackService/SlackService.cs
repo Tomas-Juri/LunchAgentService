@@ -5,9 +5,9 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using log4net;
 using LunchAgentService.Entities;
 using LunchAgentService.Services.DatabaseService;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -19,10 +19,10 @@ namespace LunchAgentService.Services
         private static readonly string UpdateMessageUri = "https://slack.com/api/chat.update";
         private static readonly string ChatHistoryUri = "https://slack.com/api/channels.history";
 
-        private ILog Log { get; }
+        private ILogger Log { get; }
         private IDatabaseService DatabaseService { get; }
 
-        public SlackService(IDatabaseService databaseService, ILog log)
+        public SlackService(IDatabaseService databaseService, ILogger log)
         {
             DatabaseService = databaseService;
             Log = log;
@@ -32,16 +32,16 @@ namespace LunchAgentService.Services
         {
             var settings = DatabaseService.Get<SlackSettingMongo>().First();
 
-            Log.Debug("Getting slack history");
+            Log.LogDebug("Getting slack history");
 
             var history = GetSlackChannelHistory(settings);
 
-            Log.Debug("Filtering messages for messages from today");
+            Log.LogDebug("Filtering messages for messages from today");
 
             var todayMessages = history.Messages.FindAll(message =>
                 message.Date.Date == DateTime.Today && message.BotId == settings.BotId);
 
-            Log.Debug($"I have {todayMessages.Count} messages from myself today");
+            Log.LogDebug($"I have {todayMessages.Count} messages from myself today");
 
             var todayMessage = todayMessages
                 .OrderByDescending(message => message.Date)
@@ -49,13 +49,13 @@ namespace LunchAgentService.Services
 
             if (todayMessage == null)
             {
-                Log.Debug("Posting new menus to slack");
+                Log.LogDebug("Posting new menus to slack");
 
                 PostToSlack(menus, settings);
             }
             else
             {
-                Log.Debug("Updating already existing menu on slack");
+                Log.LogDebug("Updating already existing menu on slack");
 
                 UpdateToSlack(menus, todayMessage.Timestamp, settings);
             }
@@ -100,7 +100,7 @@ namespace LunchAgentService.Services
 
         private string PostToSlack(dynamic requestObject, string requestUri)
         {
-            Log.Debug($"Posting request to slack uri: {requestUri}");
+            Log.LogDebug($"Posting request to slack uri: {requestUri}");
 
             var data = new StringContent(JObject.FromObject(requestObject).ToString(), Encoding.UTF8, "application/json");
 
@@ -114,13 +114,13 @@ namespace LunchAgentService.Services
                     response.Wait();
                     var result = response.Result.Content.ReadAsStringAsync().Result;
 
-                    Log.Debug($"Request posted successfuly. Response: {response.Result.StatusCode}");
+                    Log.LogDebug($"Request posted successfuly. Response: {response.Result.StatusCode}");
 
                     return result;
                 }
                 catch (Exception e)
                 {
-                    Log.Error("Failed posting request", e);
+                    Log.LogError("Failed posting request", e);
 
                     return null;
                 }
@@ -135,7 +135,7 @@ namespace LunchAgentService.Services
 
             using (var client = new HttpClient())
             {
-                Log.Debug($"Posting request to slack uri: {ChatHistoryUri}");
+                Log.LogDebug($"Posting request to slack uri: {ChatHistoryUri}");
 
                 formData["token"] = slackSetting.BotToken;
                 formData["channel"] = slackSetting.ChannelName;
@@ -151,12 +151,12 @@ namespace LunchAgentService.Services
                     response.Wait();
                     stringResponse = response.Result.Content.ReadAsStringAsync().Result;
 
-                    Log.Debug($"Request posted successfuly. Response: {response.Result.StatusCode}");
+                    Log.LogDebug($"Request posted successfuly. Response: {response.Result.StatusCode}");
 
                 }
                 catch (Exception e)
                 {
-                    Log.Error("Failed posting request", e);
+                    Log.LogError("Failed posting request", e);
 
                     return new SlackChannelHistory();
                 }
@@ -169,7 +169,7 @@ namespace LunchAgentService.Services
 
         private string FormatMenuForSlack(List<RestaurantMenu> menus)
         {
-            Log.Debug("Formating menu for slack");
+            Log.LogDebug("Formating menu for slack");
 
             var result = new List<string>();
 

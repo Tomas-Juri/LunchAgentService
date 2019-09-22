@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using log4net;
+﻿using System.Collections.Generic;
+using System.Security.Authentication;
 using LunchAgentService.Entities;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -10,14 +9,17 @@ namespace LunchAgentService.Services.DatabaseService
 {
     public class DatabaseService : IDatabaseService
     {
-        private ILog Log { get; }
+        private ILogger Log { get; }
         private IMongoClient Client { get; }
         private IMongoDatabase Database { get; }
 
-        public DatabaseService(string connectionString, string databaseName, ILog log)
+        public DatabaseService(string connectionString, string databaseName, ILogger log)
         {
             Log = log;
-            Client = new MongoClient(connectionString);
+            var settings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
+            settings.SslSettings = new SslSettings { EnabledSslProtocols = SslProtocols.Tls12 };
+            Client = new MongoClient(settings);
+
             Database = Client.GetDatabase(databaseName);
         }
 

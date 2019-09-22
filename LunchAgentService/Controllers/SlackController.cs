@@ -1,12 +1,11 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using log4net;
 using LunchAgentService.Entities;
 using LunchAgentService.Services;
 using LunchAgentService.Services.DatabaseService;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
+using Microsoft.Extensions.Logging;
 
 namespace LunchAgentService.Controllers
 {
@@ -16,9 +15,9 @@ namespace LunchAgentService.Controllers
         private IRestaurantService RestaurantService { get; }
         private ISlackService SlackService { get; }
         private IDatabaseService DatabaseService { get; }
-        private ILog Log { get; }
+        private ILogger Log { get; }
 
-        public SlackController(IRestaurantService restaurantService, ISlackService slackService, IDatabaseService databaseService, ILog log)
+        public SlackController(IRestaurantService restaurantService, ISlackService slackService, IDatabaseService databaseService, ILogger log)
         {
             RestaurantService = restaurantService;
             SlackService = slackService;
@@ -37,7 +36,7 @@ namespace LunchAgentService.Controllers
             }
             catch (Exception e)
             {
-                Log.Error("Error occured while calling ForcePost", e);
+                Log.LogError("Error occured while calling ForcePost", e);
 
                 return new StatusCodeResult(500);
             }

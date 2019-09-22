@@ -6,19 +6,19 @@ using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
-using log4net;
 using LunchAgentService.Entities;
 using LunchAgentService.Services.DatabaseService;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
 namespace LunchAgentService.Services
 {
     public class RestaurantService : IRestaurantService
     {
-        private ILog Log { get; }
+        private ILogger Log { get; }
         private IDatabaseService DatabaseService { get; }
 
-        public RestaurantService(IDatabaseService databaseService, ILog log)
+        public RestaurantService(IDatabaseService databaseService, ILogger log)
         {
             Log = log;
             DatabaseService = databaseService;
@@ -51,7 +51,7 @@ namespace LunchAgentService.Services
                         }
                         catch (Exception e)
                         {
-                            Log.Debug($"Failed to get menu from {setting.Name}", e);
+                            Log.LogError($"Failed to get menu from {setting.Name}", e);
                         }
                     }
 
@@ -67,7 +67,7 @@ namespace LunchAgentService.Services
                     }
                     catch (Exception e)
                     {
-                        Log.Debug($"Failed to get menu from {setting.Name}", e);
+                        Log.LogDebug($"Failed to get menu from {setting.Name}", e);
                     }
                 }
 
@@ -85,10 +85,10 @@ namespace LunchAgentService.Services
                 }
                 catch (Exception e)
                 {
-                    Log.Debug($"Failed to parse menu from {setting.Name}", e);
+                    Log.LogDebug($"Failed to parse menu from {setting.Name}", e);
                 }
 
-                Log.Debug($"Sucessfully got menu from {setting.Name}");
+                Log.LogDebug($"Sucessfully got menu from {setting.Name}");
             }
 
 

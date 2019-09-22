@@ -1,10 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using log4net;
-using log4net.Config;
+﻿using System.Linq;
 using LunchAgentService.Entities;
 using LunchAgentService.Services;
 using LunchAgentService.Services.DatabaseService;
@@ -14,34 +8,33 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace LunchAgentService
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(ILogger logger, IConfiguration configuration)
         {
+            Logger = logger;
             Configuration = configuration;
         }
 
+        public ILogger Logger { get; }
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-
-            XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
-
-            var logger = LogManager.GetLogger(typeof(Startup));
-            var databaseService = new DatabaseService(Configuration["connectionString"], Configuration["databaseName"], logger);
+            var databaseService = new DatabaseService(Configuration["connectionString"], Configuration["databaseName"], Logger);
 
             LoadConfigFileIntoDatabase(Configuration, databaseService);
 
-            services.AddSingleton(m => logger);
+            services.AddSingleton(m => Logger);
             services.AddSingleton<IDatabaseService>(m => databaseService);
-            services.AddSingleton<ISlackService>(m => new SlackService(databaseService, logger));
-            services.AddSingleton<IRestaurantService>(m => new RestaurantService(databaseService, logger));
+            services.AddSingleton<ISlackService>(m => new SlackService(databaseService, Logger));
+            services.AddSingleton<IRestaurantService>(m => new RestaurantService(databaseService, Logger));
             services.AddSingleton<IMachineLearningService, MachineLearningService>();
             services.AddSingleton<IHostedService, SchedulerService>();
 

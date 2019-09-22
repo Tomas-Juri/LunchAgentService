@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using log4net;
 using LunchAgentService.Entities;
 using LunchAgentService.Services.DatabaseService;
+using Microsoft.Extensions.Logging;
 
 namespace LunchAgentService.Services.MachineLearningService
 {
     public class MachineLearningService : IMachineLearningService
     {
-        private ILog Log { get; }
+        private ILogger Log { get; }
         private IDatabaseService DatabaseService { get; }
 
-        public MachineLearningService(ILog log, IDatabaseService databaseService)
+        public MachineLearningService(ILogger log, IDatabaseService databaseService)
         {
             DatabaseService = databaseService;
             Log = log;

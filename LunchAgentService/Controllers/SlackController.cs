@@ -52,7 +52,7 @@ namespace LunchAgentService.Controllers
         [HttpPost("setting")]
         public IActionResult SetSetting([FromBody][Required]SlackSettingApi setting)
         {
-            return new JsonResult(DatabaseService.AddOrUpdate(setting.ToMongo()).ToApi());
+            return new JsonResult(DatabaseService.AddOrUpdate(setting.ToMongo()));
         }
     }
 }

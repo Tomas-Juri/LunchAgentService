@@ -17,7 +17,7 @@ namespace LunchAgentService.Controllers
         private IDatabaseService DatabaseService { get; }
         private ILogger Log { get; }
 
-        public SlackController(IRestaurantService restaurantService, ISlackService slackService, IDatabaseService databaseService, ILogger log)
+        public SlackController(IRestaurantService restaurantService, ISlackService slackService, IDatabaseService databaseService, ILogger<SlackController> log)
         {
             RestaurantService = restaurantService;
             SlackService = slackService;

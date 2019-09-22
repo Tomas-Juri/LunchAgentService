@@ -18,7 +18,7 @@ namespace LunchAgentService.Services
         private ILogger Log { get; }
         private IDatabaseService DatabaseService { get; }
 
-        public RestaurantService(IDatabaseService databaseService, ILogger log)
+        public RestaurantService(IDatabaseService databaseService, ILogger<RestaurantService> log)
         {
             Log = log;
             DatabaseService = databaseService;

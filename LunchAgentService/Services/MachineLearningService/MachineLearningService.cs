@@ -12,7 +12,7 @@ namespace LunchAgentService.Services.MachineLearningService
         private ILogger Log { get; }
         private IDatabaseService DatabaseService { get; }
 
-        public MachineLearningService(ILogger log, IDatabaseService databaseService)
+        public MachineLearningService(ILogger<MachineLearningService> log, IDatabaseService databaseService)
         {
             DatabaseService = databaseService;
             Log = log;

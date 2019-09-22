@@ -22,7 +22,7 @@ namespace LunchAgentService.Services
         private ILogger Log { get; }
         private IDatabaseService DatabaseService { get; }
 
-        public SlackService(IDatabaseService databaseService, ILogger log)
+        public SlackService(IDatabaseService databaseService, ILogger<SlackService> log)
         {
             DatabaseService = databaseService;
             Log = log;

@@ -13,7 +13,7 @@ namespace LunchAgentService.Services
         private IMachineLearningService MachineLearningService { get; }
         private ILogger Log { get; }
 
-        public SchedulerService(IRestaurantService restaurantService, ISlackService slackService, IMachineLearningService machineLearningService, ILogger log)
+        public SchedulerService(IRestaurantService restaurantService, ISlackService slackService, IMachineLearningService machineLearningService, ILogger<SchedulerService> log)
         {
             RestaurantService = restaurantService;
             SlackService = slackService;

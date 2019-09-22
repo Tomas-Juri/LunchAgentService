@@ -15,7 +15,7 @@ namespace LunchAgentService
 {
     public class Startup
     {
-        public Startup(ILogger logger, IConfiguration configuration)
+        public Startup(ILogger<Startup> logger, IConfiguration configuration)
         {
             Logger = logger;
             Configuration = configuration;
@@ -30,11 +30,10 @@ namespace LunchAgentService
             var databaseService = new DatabaseService(Configuration["connectionString"], Configuration["databaseName"], Logger);
 
             LoadConfigFileIntoDatabase(Configuration, databaseService);
-
-            services.AddSingleton(m => Logger);
+            
             services.AddSingleton<IDatabaseService>(m => databaseService);
-            services.AddSingleton<ISlackService>(m => new SlackService(databaseService, Logger));
-            services.AddSingleton<IRestaurantService>(m => new RestaurantService(databaseService, Logger));
+            services.AddSingleton<ISlackService, SlackService>();
+            services.AddSingleton<IRestaurantService, RestaurantService>();
             services.AddSingleton<IMachineLearningService, MachineLearningService>();
             services.AddSingleton<IHostedService, SchedulerService>();
 

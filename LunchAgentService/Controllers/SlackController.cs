@@ -43,11 +43,11 @@ namespace LunchAgentService.Controllers
             return new OkResult();
         }
 
-        [HttpGet("setting")]
-        public IActionResult GetSetting()
-        {
-            return new JsonResult(DatabaseService.Get<SlackSettingMongo>().FirstOrDefault()?.ToApi());
-        }
+        //[HttpGet("setting")]
+        //public IActionResult GetSetting()
+        //{
+        //    return new JsonResult(DatabaseService.Get<SlackSettingMongo>().FirstOrDefault()?.ToApi());
+        //}
 
         [HttpPost("setting")]
         public IActionResult SetSetting([FromBody][Required]SlackSettingApi setting)

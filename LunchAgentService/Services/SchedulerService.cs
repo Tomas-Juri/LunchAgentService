@@ -38,7 +38,7 @@ namespace LunchAgentService.Services
 
                         Log.LogDebug("Processing slack reactions");
 
-                        MachineLearningService.ProcessSlackLunchReactions(reactions, reactedMenus);
+                        //MachineLearningService.ProcessSlackLunchReactions(reactions, reactedMenus);
                     }
                     catch (Exception e)
                     {

@@ -31,12 +31,12 @@ namespace LunchAgentService.Services
                 {
                     try
                     {
-                        Log.LogDebug("Getting slack reactions");
+                        //Log.LogDebug("Getting slack reactions");
 
-                        var reactions = SlackService.GetReactionsToLunch();
-                        var reactedMenus = RestaurantService.GetMenus();
+                        //var reactions = SlackService.GetReactionsToLunch();
+                        //var reactedMenus = RestaurantService.GetMenus();
 
-                        Log.LogDebug("Processing slack reactions");
+                        //Log.LogDebug("Processing slack reactions");
 
                         //MachineLearningService.ProcessSlackLunchReactions(reactions, reactedMenus);
                     }

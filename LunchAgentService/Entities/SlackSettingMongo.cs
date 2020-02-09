@@ -16,7 +16,7 @@ namespace LunchAgentService.Entities
 
         public SlackSettingApi ToApi()
         {
-            return new SlackSettingApi()
+            return new SlackSettingApi
             {
                 Id = Id.ToString(),
                 BotId = BotId,
@@ -36,9 +36,9 @@ namespace LunchAgentService.Entities
 
         public SlackSettingMongo ToMongo()
         {
-            return new SlackSettingMongo()
+            return new SlackSettingMongo
             {
-                Id = ObjectId.Parse(Id),
+                Id = Id != null ? ObjectId.Parse(Id) : ObjectId.Empty,
                 BotId = BotId,
                 BotToken = BotToken,
                 ChannelName = ChannelName

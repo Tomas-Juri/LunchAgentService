@@ -16,7 +16,7 @@ namespace LunchAgentService.Entities
 
         public RestaurantApi ToApi()
         {
-            return new RestaurantApi()
+            return new RestaurantApi
             {
                 Id = Id.ToString(),
                 Name = Name,
@@ -36,9 +36,9 @@ namespace LunchAgentService.Entities
 
         public RestaurantMongo ToMongo()
         {
-            return new RestaurantMongo()
+            return new RestaurantMongo
             {
-                Id = ObjectId.Parse(Id),
+                Id = Id != null ? ObjectId.Parse(Id) : ObjectId.Empty,
                 Name = Name,
                 Url = Url,
                 Emoji = Emoji

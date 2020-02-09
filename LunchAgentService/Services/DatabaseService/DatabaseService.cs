@@ -39,20 +39,26 @@ namespace LunchAgentService.Services.DatabaseService
                 .ToList();
         }
 
-        public ReplaceOneResult AddOrUpdate<T>(T entity) where T : MongoEntity
+        public T AddOrUpdate<T>(T entity) where T : MongoEntity
         {
             if (entity == null)
                 return null;
 
-            return Database
-                .GetCollection<T>(typeof(T).Name)
-                .ReplaceOne(
-                    new BsonDocument("_id", entity.Id),
-                    entity,
-                    new UpdateOptions
-                    {
-                        IsUpsert = true
-                    });
+            var dbEntity = Get<T>(entity.Id);
+            if (dbEntity == null)
+            {
+                Database
+                    .GetCollection<T>(typeof(T).Name)
+                    .InsertOne(entity);
+            }
+            else
+            {
+                Database.GetCollection<T>(typeof(T).Name)
+                    .ReplaceOne(new BsonDocument("_id", entity.Id), entity);
+            }
+
+
+            return entity;
         }
 
         public IEnumerable<T> AddOrUpdate<T>(T[] entities) where T : MongoEntity

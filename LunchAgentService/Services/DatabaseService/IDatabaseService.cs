@@ -10,7 +10,7 @@ namespace LunchAgentService.Services.DatabaseService
     {
         T Get<T>(ObjectId id) where T : MongoEntity;
         IEnumerable<T> Get<T>() where T : MongoEntity;
-        ReplaceOneResult AddOrUpdate<T>(T entity) where T : MongoEntity;
+        T AddOrUpdate<T>(T entity) where T : MongoEntity;
         IEnumerable<T> AddOrUpdate<T>(T[] entities) where T : MongoEntity;
         DeleteResult Delete<T>(ObjectId id) where T : MongoEntity;
     }

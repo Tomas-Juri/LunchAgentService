@@ -39,7 +39,7 @@ namespace LunchAgentService.Controllers
         }
 
         [HttpDelete("restaurant")]
-        public IActionResult DeleteRestaurant([FromBody][Required]string id)
+        public IActionResult DeleteRestaurant([FromRoute][Required]string id)
         {
             return new JsonResult(DatabaseService.Delete<RestaurantMongo>(ObjectId.Parse(id)));
         }

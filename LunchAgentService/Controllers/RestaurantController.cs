@@ -32,13 +32,13 @@ namespace LunchAgentService.Controllers
             return new JsonResult(DatabaseService.Get<RestaurantMongo>().Select(x => x.ToApi()));
         }
 
-        [HttpGet("restaurant")]
+        [HttpGet("restaurant/{id}")]
         public IActionResult GetRestaurant([FromRoute][Required]string id)
         {
             return new JsonResult(DatabaseService.Get<RestaurantMongo>(ObjectId.Parse(id)).ToApi());
         }
 
-        [HttpDelete("restaurant")]
+        [HttpDelete("restaurant/{id}")]
         public IActionResult DeleteRestaurant([FromRoute][Required]string id)
         {
             return new JsonResult(DatabaseService.Delete<RestaurantMongo>(ObjectId.Parse(id)));

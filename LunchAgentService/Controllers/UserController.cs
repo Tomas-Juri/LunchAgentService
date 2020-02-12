@@ -12,7 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace LunchAgentService.Controllers
 {
-    [Route("api/slack")]
+    [Route("api/user")]
     [Authorize]
     public class UserController : ControllerBase
     {

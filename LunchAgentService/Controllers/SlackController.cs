@@ -1,15 +1,16 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using LunchAgentService.Entities;
 using LunchAgentService.Services;
 using LunchAgentService.Services.DatabaseService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace LunchAgentService.Controllers
 {
     [Route("api/slack")]
+    [Authorize(Roles = Role.SuperAdmin)]
     public class SlackController : Controller
     {
         private IRestaurantService RestaurantService { get; }
@@ -26,6 +27,7 @@ namespace LunchAgentService.Controllers
         }
 
         [HttpPost("forcePost")]
+        [AllowAnonymous]
         public IActionResult ForcePost()
         {
             try

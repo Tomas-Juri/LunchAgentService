@@ -3,12 +3,14 @@ using System.Linq;
 using LunchAgentService.Entities;
 using LunchAgentService.Services;
 using LunchAgentService.Services.DatabaseService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 
 namespace LunchAgentService.Controllers
 {
     [Route("api/restaurant")]
+    [Authorize(Roles = Role.SuperAdmin + "," + Role.Admin)]
     public class RestaurantController : Controller
     {
         private IRestaurantService RestaurantService { get; }
@@ -21,18 +23,21 @@ namespace LunchAgentService.Controllers
         }
 
         [HttpGet("menus")]
+        [AllowAnonymous]
         public IActionResult GetMenus()
         {
             return new JsonResult(RestaurantService.GetMenus());
         }
 
         [HttpGet("setting")]
+        [AllowAnonymous]
         public IActionResult GetSetting()
         {
             return new JsonResult(DatabaseService.Get<RestaurantMongo>().Select(x => x.ToApi()));
         }
 
         [HttpGet("restaurant/{id}")]
+        [AllowAnonymous]
         public IActionResult GetRestaurant([FromRoute][Required]string id)
         {
             return new JsonResult(DatabaseService.Get<RestaurantMongo>(ObjectId.Parse(id)).ToApi());

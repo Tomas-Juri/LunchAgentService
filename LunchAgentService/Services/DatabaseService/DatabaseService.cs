@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Security.Authentication;
 using LunchAgentService.Entities;
+using LunchAgentService.Helpers;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -13,14 +15,14 @@ namespace LunchAgentService.Services.DatabaseService
         private IMongoClient Client { get; }
         private IMongoDatabase Database { get; }
 
-        public DatabaseService(string connectionString, string databaseName, ILogger log)
+        public DatabaseService(IOptions<AppSettings> options, ILogger log)
         {
             Log = log;
-            var settings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
+            var settings = MongoClientSettings.FromUrl(new MongoUrl(options.Value.ConnectionString));
             settings.SslSettings = new SslSettings { EnabledSslProtocols = SslProtocols.Tls12 };
             Client = new MongoClient(settings);
 
-            Database = Client.GetDatabase(databaseName);
+            Database = Client.GetDatabase(options.Value.DatabaseName);
         }
 
         public T Get<T>(ObjectId id) where T : MongoEntity

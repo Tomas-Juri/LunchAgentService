@@ -1,11 +1,8 @@
-﻿using System.Linq;
-using System.Text;
+﻿using System.Text;
 using System.Threading.Tasks;
-using LunchAgentService.Entities;
 using LunchAgentService.Helpers;
 using LunchAgentService.Services;
 using LunchAgentService.Services.DatabaseService;
-using LunchAgentService.Services.MachineLearningService;
 using LunchAgentService.Services.UserService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -37,28 +34,57 @@ namespace LunchAgentService
             services.AddCors();
             services.AddMvc();
 
-            var databaseService = new DatabaseService(Configuration["connectionString"], Configuration["databaseName"], Logger);
+            var appSettingsSection = Configuration.GetSection("AppSettings");
 
-            LoadConfigFileIntoDatabase(Configuration, databaseService);
-            
-            services.AddSingleton<IDatabaseService>(m => databaseService);
+            services.Configure<AppSettings>(appSettingsSection);
+            services.AddSingleton<IDatabaseService, DatabaseService>();
             services.AddSingleton<ISlackService, SlackService>();
             services.AddSingleton<IRestaurantService, RestaurantService>();
-            services.AddSingleton<IMachineLearningService, MachineLearningService>();
             services.AddSingleton<IHostedService, SchedulerService>();
-
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
             });
+            services.AddJwtAuthentication(appSettingsSection);
+        }
 
-            // configure strongly typed settings objects
-            var appSettingsSection = Configuration.GetSection("AppSettings");
-            services.Configure<AppSettings>(appSettingsSection);
 
-            // configure jwt authentication
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        {
+            app.UseCors(x => x
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .Build());
+            app.UseAuthentication();
+            app.UseStaticFiles();
+            app.UseMvc();
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
+
+            if (env.IsDevelopment())
+            {
+                app.UseBrowserLink();
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Error");
+            }
+        }
+    }
+
+    public static class ServicesExtensions
+    {
+        public static void AddJwtAuthentication(this IServiceCollection services, IConfigurationSection appSettingsSection)
+        {
             var appSettings = appSettingsSection.Get<AppSettings>();
             var key = Encoding.ASCII.GetBytes(appSettings.Secret);
+
             services.AddAuthentication(x =>
                 {
                     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -91,46 +117,6 @@ namespace LunchAgentService
                         ValidateAudience = false
                     };
                 });
-        }
-
-        private void LoadConfigFileIntoDatabase(IConfiguration configuration, DatabaseService databaseService)
-        {
-            var slackSetting = databaseService.Get<SlackSettingMongo>();
-            var restaurantSetting = databaseService.Get<RestaurantMongo>();
-
-            if (slackSetting.Any() == false)
-                databaseService.AddOrUpdate(configuration.GetSection("SlackServiceSetting").Get<SlackSettingMongo>());
-
-            if (restaurantSetting.Any() == false)
-                databaseService.AddOrUpdate(configuration.GetSection("RestaurantServiceSettings").Get<RestaurantMongo[]>());
-        }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-        {
-            app.UseCors(x => x
-                .AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-                .Build());
-            app.UseAuthentication();
-            app.UseStaticFiles();
-            app.UseMvc();
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-            });
-
-            if (env.IsDevelopment())
-            {
-                app.UseBrowserLink();
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Error");
-            }
         }
     }
 }

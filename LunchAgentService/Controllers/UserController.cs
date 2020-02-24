@@ -25,6 +25,8 @@ namespace LunchAgentService.Controllers
             _appSettings = appSettings.Value;
         }
 
+        [HttpPost("login")]
+        [AllowAnonymous]
         public IActionResult Authenticate([FromBody]UserApi userApi)
         {
             var user = _userService.Authenticate(userApi.Username, userApi.Password);
@@ -47,7 +49,6 @@ namespace LunchAgentService.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
 
-            // return basic user info (without password) and token to store client side
             return Ok(new
             {
                 user.Id,
@@ -56,8 +57,8 @@ namespace LunchAgentService.Controllers
             });
         }
 
-        [AllowAnonymous]
         [HttpPost("register")]
+        [AllowAnonymous]
         public IActionResult Register([FromBody]UserApi userApi)
         {
             try

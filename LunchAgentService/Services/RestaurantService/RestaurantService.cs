@@ -16,12 +16,12 @@ namespace LunchAgentService.Services
     public class RestaurantService : IRestaurantService
     {
         private ILogger Log { get; }
-        private IDatabaseService DatabaseService { get; }
+        private IStorageService StorageService { get; }
 
-        public RestaurantService(IDatabaseService databaseService, ILogger<RestaurantService> log)
+        public RestaurantService(IStorageService storageService, ILogger<RestaurantService> log)
         {
             Log = log;
-            DatabaseService = databaseService;
+            StorageService = storageService;
         }
 
         public List<RestaurantMenu> GetMenus()
@@ -32,7 +32,7 @@ namespace LunchAgentService.Services
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-            var restaurants = DatabaseService.Get<RestaurantMongo>();
+            var restaurants = StorageService.Get<Restaurant>();
 
             foreach (var setting in restaurants)
             {

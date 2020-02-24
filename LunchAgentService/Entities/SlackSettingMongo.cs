@@ -1,48 +1,26 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+﻿using Microsoft.WindowsAzure.Storage.Table;
 
 namespace LunchAgentService.Entities
 {
-    public class SlackSettingMongo : MongoEntity
+    public class Slack : TableEntity
     {
-        [BsonElement("botToken")]
-        public string BotToken { get; set; }
-
-        [BsonElement("channelName")]
-        public string ChannelName { get; set; }
-
-        [BsonElement("botId")]
-        public string BotId { get; set; }
-
-        public SlackSettingApi ToApi()
+        public Slack()
         {
-            return new SlackSettingApi
-            {
-                Id = Id.ToString(),
-                BotId = BotId,
-                BotToken = BotToken,
-                ChannelName = ChannelName
-            };
+            
         }
-    }
 
-    public class SlackSettingApi : ApiEntity
-    {
+        public Slack(string name)
+        {
+            PartitionKey = nameof(Slack);
+            RowKey = name;
+        }
+
+        public string Name => RowKey;
+
         public string BotToken { get; set; }
 
         public string ChannelName { get; set; }
 
         public string BotId { get; set; }
-
-        public SlackSettingMongo ToMongo()
-        {
-            return new SlackSettingMongo
-            {
-                Id = Id != null ? ObjectId.Parse(Id) : ObjectId.Empty,
-                BotId = BotId,
-                BotToken = BotToken,
-                ChannelName = ChannelName
-            };
-        }
     }
 }

@@ -1,37 +1,30 @@
-﻿using MongoDB.Bson;
+﻿using Microsoft.WindowsAzure.Storage.Table;
 
 namespace LunchAgentService.Entities
 {
-    public class UserMongo : MongoEntity
+    public class User : TableEntity 
     {
-        public string Username { get; set; }
+        public User()
+        {
+            
+        }
+
+        public User(string name)
+        {
+            PartitionKey = nameof(User);
+            RowKey = name;
+        }
+
+        public string Username => RowKey;
         public string Role { get; set; }
         public string Token { get; set; }
         public byte[] PasswordHash { get; set; }
         public byte[] PasswordSalt { get; set; }
-
-        public UserApi ToApi()
-        {
-            return new UserApi
-            {
-                Id = Id.ToString(),
-                Username = Username,
-            };
-        }
     }
 
-    public class UserApi : ApiEntity
+    public class UserApi 
     {
         public string Username { get; set; }
         public string Password { get; set; }
-
-        public UserMongo ToMongo()
-        {
-            return new UserMongo
-            {
-                Id = Id != null ? ObjectId.Parse(Id) : ObjectId.Empty,
-                Username = Username
-            };
-        }
     }
 }

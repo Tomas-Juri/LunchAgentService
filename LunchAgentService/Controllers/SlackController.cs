@@ -15,14 +15,14 @@ namespace LunchAgentService.Controllers
     {
         private IRestaurantService RestaurantService { get; }
         private ISlackService SlackService { get; }
-        private IDatabaseService DatabaseService { get; }
+        private IStorageService StorageService { get; }
         private ILogger Log { get; }
 
-        public SlackController(IRestaurantService restaurantService, ISlackService slackService, IDatabaseService databaseService, ILogger<SlackController> log)
+        public SlackController(IRestaurantService restaurantService, ISlackService slackService, IStorageService storageService, ILogger<SlackController> log)
         {
             RestaurantService = restaurantService;
             SlackService = slackService;
-            DatabaseService = databaseService;
+            StorageService = storageService;
             Log = log;
         }
 
@@ -48,13 +48,13 @@ namespace LunchAgentService.Controllers
         //[HttpGet("setting")]
         //public IActionResult GetSetting()
         //{
-        //    return new JsonResult(DatabaseService.Get<SlackSettingMongo>().FirstOrDefault()?.ToApi());
+        //    return new JsonResult(StorageService.Get<SlackSettingMongo>().FirstOrDefault()?.ToApi());
         //}
 
         [HttpPost("setting")]
-        public IActionResult SetSetting([FromBody][Required]SlackSettingApi setting)
+        public IActionResult SetSetting([FromBody][Required]Slack setting)
         {
-            return new JsonResult(DatabaseService.AddOrUpdate(setting.ToMongo()));
+            return new JsonResult(StorageService.AddOrUpdate(setting));
         }
     }
 }

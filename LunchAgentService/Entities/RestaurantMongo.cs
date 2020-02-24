@@ -1,48 +1,24 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+﻿using Microsoft.WindowsAzure.Storage.Table;
 
 namespace LunchAgentService.Entities
 {
-    public class RestaurantMongo : MongoEntity
+    public class Restaurant : TableEntity
     {
-        [BsonElement("name")]
-        public string Name { get; set; }
-
-        [BsonElement("url")]
-        public string Url { get; set; }
-
-        [BsonElement("emoji")]
-        public string Emoji { get; set; }
-
-        public RestaurantApi ToApi()
+        public Restaurant()
         {
-            return new RestaurantApi
-            {
-                Id = Id.ToString(),
-                Name = Name,
-                Url = Url,
-                Emoji = Emoji
-            };
+            
         }
-    }
 
-    public class RestaurantApi : ApiEntity
-    {
-        public string Name { get; set; }
+        public Restaurant(string name)
+        {
+            PartitionKey = nameof(Restaurant);
+            RowKey = name;
+        }
+
+        public string Name => RowKey;
 
         public string Url { get; set; }
 
         public string Emoji { get; set; }
-
-        public RestaurantMongo ToMongo()
-        {
-            return new RestaurantMongo
-            {
-                Id = Id != null ? ObjectId.Parse(Id) : ObjectId.Empty,
-                Name = Name,
-                Url = Url,
-                Emoji = Emoji
-            };
-        }
     }
 }

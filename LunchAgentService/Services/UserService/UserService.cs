@@ -3,25 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using LunchAgentService.Entities;
 using LunchAgentService.Services.DatabaseService;
-using MongoDB.Bson;
 
 namespace LunchAgentService.Services.UserService
 {
     public class UserService : IUserService
     {
-        private IDatabaseService DatabaseService { get; }
+        private IStorageService StorageService { get; }
 
-        public UserService(IDatabaseService databaseService)
+        public UserService(IStorageService storageService)
         {
-            DatabaseService = databaseService;
+            StorageService = storageService;
         }
 
-        public UserMongo Authenticate(string username, string password)
+        public User Authenticate(string username, string password)
         {
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
                 return null;
 
-            var user = DatabaseService.Get<UserMongo>().Where(x => x.Username == username).ToList().FirstOrDefault();
+            var user = StorageService.Get<User>().Where(x => x.Username == username).ToList().FirstOrDefault();
 
             // check if username exists
             if (user == null)
@@ -35,57 +34,47 @@ namespace LunchAgentService.Services.UserService
             return user;
         }
 
-        public IEnumerable<UserApi> GetAll()
+        public IEnumerable<string> GetAll()
         {
-            return DatabaseService.Get<UserMongo>().Select(x => x.ToApi());
+            return StorageService.Get<User>().Select(x => x.Username);
         }
 
-        public UserApi GetById(string id)
+        public string GetById(string id)
         {
-            return DatabaseService.Get<UserMongo>(ObjectId.Parse(id)).ToApi();
+            return StorageService.Get<User>(id).Username;
         }
 
-        public UserApi Create(UserApi user)
+        public string Create(UserApi user)
         {
             // validation
             if (string.IsNullOrWhiteSpace(user.Password))
                 throw new Exception("Password is required");
 
-            var mongoUser = DatabaseService.Get<UserMongo>().FirstOrDefault(x => x.Username == user.Username);
+            var mongoUser = StorageService.Get<User>().FirstOrDefault(x => x.Username == user.Username);
 
             if (mongoUser != null)
                 throw new Exception("Username \"" + user.Username + "\" is already taken");
 
             CreatePasswordHash(user.Password, out var passwordHash, out var passwordSalt);
 
-            mongoUser = new UserMongo
+            mongoUser = new User(user.Username)
             {
                 PasswordHash = passwordHash,
                 PasswordSalt = passwordSalt,
                 Role = Role.User,
-                Username = user.Username,
             };
 
-            DatabaseService.AddOrUpdate(mongoUser);
+            StorageService.AddOrUpdate(mongoUser);
 
-            return user;
+            return user.Username;
         }
 
         public void Update(UserApi user)
         {
-            var mongoUser = DatabaseService.Get<UserMongo>(ObjectId.Parse(user.Id));
+            var mongoUser = StorageService.Get<User>(user.Username);
 
             if (mongoUser == null)
                 throw new Exception("User not found");
-
-            if (user.Username != mongoUser.Username)
-            {
-                if (DatabaseService.Get<UserMongo>().Any(x => x.Username == user.Username))
-                    throw new Exception("Username " + user.Username + " is already taken");
-            }
-
-            // update user properties
-            mongoUser.Username = user.Username;
 
             // update password if it was entered
             if (!string.IsNullOrWhiteSpace(user.Password))
@@ -96,12 +85,12 @@ namespace LunchAgentService.Services.UserService
                 mongoUser.PasswordSalt = passwordSalt;
             }
 
-            DatabaseService.AddOrUpdate(mongoUser);
+            StorageService.AddOrUpdate(mongoUser);
         }
 
         public void Delete(string id)
         {
-            DatabaseService.Delete<UserMongo>(ObjectId.Parse(id));
+            StorageService.Delete<User>(id);
         }
 
         private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)

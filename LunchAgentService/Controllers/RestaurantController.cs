@@ -1,11 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using LunchAgentService.Entities;
 using LunchAgentService.Services;
 using LunchAgentService.Services.DatabaseService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
 
 namespace LunchAgentService.Controllers
 {
@@ -14,12 +12,12 @@ namespace LunchAgentService.Controllers
     public class RestaurantController : Controller
     {
         private IRestaurantService RestaurantService { get; }
-        private IDatabaseService DatabaseService { get; }
+        private IStorageService StorageService { get; }
 
-        public RestaurantController(IRestaurantService restaurantService, IDatabaseService databaseService)
+        public RestaurantController(IRestaurantService restaurantService, IStorageService storageService)
         {
             RestaurantService = restaurantService;
-            DatabaseService = databaseService;
+            StorageService = storageService;
         }
 
         [HttpGet("menus")]
@@ -33,26 +31,27 @@ namespace LunchAgentService.Controllers
         [AllowAnonymous]
         public IActionResult GetSetting()
         {
-            return new JsonResult(DatabaseService.Get<RestaurantMongo>().Select(x => x.ToApi()));
+            return new JsonResult(StorageService.Get<Restaurant>());
         }
 
         [HttpGet("restaurant/{id}")]
         [AllowAnonymous]
         public IActionResult GetRestaurant([FromRoute][Required]string id)
         {
-            return new JsonResult(DatabaseService.Get<RestaurantMongo>(ObjectId.Parse(id)).ToApi());
+            return new JsonResult(StorageService.Get<Restaurant>(id));
         }
 
         [HttpDelete("restaurant/{id}")]
         public IActionResult DeleteRestaurant([FromRoute][Required]string id)
         {
-            return new JsonResult(DatabaseService.Delete<RestaurantMongo>(ObjectId.Parse(id)));
+            StorageService.Delete<Restaurant>(id);
+            return new OkResult();
         }
 
         [HttpPost("restaurant")]
-        public IActionResult AddOrUpdateRestaurant([FromBody][Required]RestaurantApi restaurant)
+        public IActionResult AddOrUpdateRestaurant([FromBody][Required]Restaurant restaurant)
         {
-            return new JsonResult(DatabaseService.AddOrUpdate(restaurant.ToMongo()));
+            return new JsonResult(StorageService.AddOrUpdate(restaurant));
         }
     }
 }

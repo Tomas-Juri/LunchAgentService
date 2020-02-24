@@ -37,10 +37,11 @@ namespace LunchAgentService
             var appSettingsSection = Configuration.GetSection("AppSettings");
 
             services.Configure<AppSettings>(appSettingsSection);
-            services.AddSingleton<IDatabaseService, DatabaseService>();
+            services.AddSingleton<IStorageService, TableStorageService>();
             services.AddSingleton<ISlackService, SlackService>();
             services.AddSingleton<IRestaurantService, RestaurantService>();
             services.AddSingleton<IHostedService, SchedulerService>();
+            services.AddSingleton<IUserService, UserService>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });

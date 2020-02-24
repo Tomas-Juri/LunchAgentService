@@ -5,10 +5,10 @@ namespace LunchAgentService.Services.UserService
 {
     public interface IUserService
     {
-        UserMongo Authenticate(string username, string password);
-        IEnumerable<UserApi> GetAll();
-        UserApi GetById(string id);
-        UserApi Create(UserApi user);
+        User Authenticate(string username, string password);
+        IEnumerable<string> GetAll();
+        string GetById(string id);
+        string Create(UserApi user);
         void Update(UserApi user);
         void Delete(string id);
     }

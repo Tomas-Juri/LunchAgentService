@@ -40,7 +40,7 @@ namespace LunchAgentService.Controllers
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(ClaimTypes.Name, user.Id.ToString()),
+                    new Claim(ClaimTypes.Name, user.Username),
                     new Claim(ClaimTypes.Role, user.Role)
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
@@ -51,7 +51,6 @@ namespace LunchAgentService.Controllers
 
             return Ok(new
             {
-                user.Id,
                 user.Username,
                 Token = tokenString
             });

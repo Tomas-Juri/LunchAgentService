@@ -20,17 +20,17 @@ namespace LunchAgentService.Services
         private static readonly string ChatHistoryUri = "https://slack.com/api/channels.history";
 
         private ILogger Log { get; }
-        private IDatabaseService DatabaseService { get; }
+        private IStorageService StorageService { get; }
 
-        public SlackService(IDatabaseService databaseService, ILogger<SlackService> log)
+        public SlackService(IStorageService storageService, ILogger<SlackService> log)
         {
-            DatabaseService = databaseService;
+            StorageService = storageService;
             Log = log;
         }
 
         public void ProcessMenus(List<RestaurantMenu> menus)
         {
-            var settings = DatabaseService.Get<SlackSettingMongo>().First();
+            var settings = StorageService.Get<Slack>().First();
 
             Log.LogDebug("Getting slack history");
 
@@ -61,7 +61,7 @@ namespace LunchAgentService.Services
             }
         }
 
-        public void PostToSlack(List<RestaurantMenu> menus, SlackSettingMongo settings)
+        public void PostToSlack(List<RestaurantMenu> menus, Slack settings)
         {
             dynamic postRequestObject = GetRequestObjectFromSlackConfiguration(settings);
 
@@ -70,7 +70,7 @@ namespace LunchAgentService.Services
             PostToSlack(postRequestObject, PostMessageUri);
         }
 
-        public void UpdateToSlack(List<RestaurantMenu> menus, string timestamp, SlackSettingMongo settings)
+        public void UpdateToSlack(List<RestaurantMenu> menus, string timestamp, Slack settings)
         {
             dynamic postRequestObject = GetRequestObjectFromSlackConfiguration(settings);
 
@@ -82,7 +82,7 @@ namespace LunchAgentService.Services
 
         public IList<Reaction> GetReactionsToLunch()
         {
-            var settings = DatabaseService.Get<SlackSettingMongo>().First();
+            var settings = StorageService.Get<Slack>().First();
 
             var channelHistory = GetSlackChannelHistory(settings);
 
@@ -127,7 +127,7 @@ namespace LunchAgentService.Services
             }
         }
 
-        private SlackChannelHistory GetSlackChannelHistory(SlackSettingMongo slackSetting)
+        private SlackChannelHistory GetSlackChannelHistory(Slack slackSetting)
         {
             var stringResponse = "";
 
@@ -185,7 +185,7 @@ namespace LunchAgentService.Services
             return string.Join(Environment.NewLine + Environment.NewLine, result);
         }
 
-        private ExpandoObject GetRequestObjectFromSlackConfiguration(SlackSettingMongo slackSetting)
+        private ExpandoObject GetRequestObjectFromSlackConfiguration(Slack slackSetting)
         {
             dynamic result = new ExpandoObject();
 

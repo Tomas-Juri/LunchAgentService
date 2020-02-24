@@ -50,30 +50,30 @@ namespace LunchAgentService.Services.UserService
             if (string.IsNullOrWhiteSpace(user.Password))
                 throw new Exception("Password is required");
 
-            var mongoUser = StorageService.Get<User>().FirstOrDefault(x => x.Username == user.Username);
+            var userServer = StorageService.Get<User>().FirstOrDefault(x => x.Username == user.Username);
 
-            if (mongoUser != null)
+            if (userServer != null)
                 throw new Exception("Username \"" + user.Username + "\" is already taken");
 
             CreatePasswordHash(user.Password, out var passwordHash, out var passwordSalt);
 
-            mongoUser = new User(user.Username)
+            userServer = new User(user.Username)
             {
                 PasswordHash = passwordHash,
                 PasswordSalt = passwordSalt,
                 Role = Role.User,
             };
 
-            StorageService.AddOrUpdate(mongoUser);
+            StorageService.AddOrUpdate(userServer);
 
             return user.Username;
         }
 
         public void Update(UserApi user)
         {
-            var mongoUser = StorageService.Get<User>(user.Username);
+            var userServer = StorageService.Get<User>(user.Username);
 
-            if (mongoUser == null)
+            if (userServer == null)
                 throw new Exception("User not found");
 
             // update password if it was entered
@@ -81,11 +81,11 @@ namespace LunchAgentService.Services.UserService
             {
                 CreatePasswordHash(user.Password, out var passwordHash, out var passwordSalt);
 
-                mongoUser.PasswordHash = passwordHash;
-                mongoUser.PasswordSalt = passwordSalt;
+                userServer.PasswordHash = passwordHash;
+                userServer.PasswordSalt = passwordSalt;
             }
 
-            StorageService.AddOrUpdate(mongoUser);
+            StorageService.AddOrUpdate(userServer);
         }
 
         public void Delete(string id)

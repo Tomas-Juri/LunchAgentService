@@ -19,5 +19,4 @@ Application is using [menicka.cz](https://www.menicka.cz) website for getting da
 ####  Tool stack:
  - Visual Studio 2017
  - Git (SourceTree)
- 
- By [ArtzTJU](https://github.com/ArtzTJU)
+

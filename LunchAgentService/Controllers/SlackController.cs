@@ -1,60 +1,57 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using LunchAgentService.Entities;
-using LunchAgentService.Services;
-using LunchAgentService.Services.DatabaseService;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+﻿//using System;
+//using System.ComponentModel.DataAnnotations;
+//using LunchAgentService.Entities;
+//using LunchAgentService.Services;
+//using Microsoft.AspNetCore.Authorization;
+//using Microsoft.AspNetCore.Mvc;
+//using Microsoft.Extensions.Logging;
 
-namespace LunchAgentService.Controllers
-{
-    [Route("api/slack")]
-    [Authorize(Roles = Role.SuperAdmin)]
-    public class SlackController : Controller
-    {
-        private IRestaurantService RestaurantService { get; }
-        private ISlackService SlackService { get; }
-        private IStorageService StorageService { get; }
-        private ILogger Log { get; }
+//namespace LunchAgentService.Controllers
+//{
+//    [Route("api/slack")]
+//    [Authorize(Roles = Role.SuperAdmin)]
+//    public class SlackController : Controller
+//    {
+//        private IRestaurantService RestaurantService { get; }
+//        private ISlackService SlackService { get; }
+//        private ILogger Log { get; }
 
-        public SlackController(IRestaurantService restaurantService, ISlackService slackService, IStorageService storageService, ILogger<SlackController> log)
-        {
-            RestaurantService = restaurantService;
-            SlackService = slackService;
-            StorageService = storageService;
-            Log = log;
-        }
+//        public SlackController(IRestaurantService restaurantService, ISlackService slackService, ILogger<SlackController> log)
+//        {
+//            RestaurantService = restaurantService;
+//            SlackService = slackService;
+//            Log = log;
+//        }
 
-        [HttpPost("forcePost")]
-        [AllowAnonymous]
-        public IActionResult ForcePost()
-        {
-            try
-            {
-                var menus = RestaurantService.GetMenus();
+//        [HttpPost("forcePost")]
+//        [AllowAnonymous]
+//        public IActionResult ForcePost()
+//        {
+//            try
+//            {
+//                var menus = RestaurantService.GetMenus();
 
-                SlackService.ProcessMenus(menus);
-            }
-            catch (Exception e)
-            {
-                Log.LogError("Error occured while calling ForcePost", e);
+//                SlackService.ProcessMenus(menus);
+//            }
+//            catch (Exception e)
+//            {
+//                Log.LogError("Error occured while calling ForcePost", e);
 
-                return new StatusCodeResult(500);
-            }
-            return new OkResult();
-        }
+//                return new StatusCodeResult(500);
+//            }
+//            return new OkResult();
+//        }
 
-        //[HttpGet("setting")]
-        //public IActionResult GetSetting()
-        //{
-        //    return new JsonResult(StorageService.Get<SlackSettingMongo>().FirstOrDefault()?.ToApi());
-        //}
+//        //[HttpGet("setting")]
+//        //public IActionResult GetSetting()
+//        //{
+//        //    return new JsonResult(StorageService.Get<SlackSettingMongo>().FirstOrDefault()?.ToApi());
+//        //}
 
-        [HttpPost("setting")]
-        public IActionResult SetSetting([FromBody][Required]Slack setting)
-        {
-            return new JsonResult(StorageService.AddOrUpdate(setting));
-        }
-    }
-}
+//        [HttpPost("setting")]
+//        public IActionResult SetSetting([FromBody][Required]Slack setting)
+//        {
+//            return new JsonResult(StorageService.AddOrUpdate(setting));
+//        }
+//    }
+//}

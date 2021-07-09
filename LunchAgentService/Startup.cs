@@ -2,8 +2,8 @@
 using System.Threading.Tasks;
 using LunchAgentService.Helpers;
 using LunchAgentService.Services;
-using LunchAgentService.Services.DatabaseService;
-using LunchAgentService.Services.UserService;
+using LunchAgentService.Services.RestaurantService;
+using LunchAgentService.Services.TeamsService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -37,16 +37,13 @@ namespace LunchAgentService
             var appSettingsSection = Configuration.GetSection("AppSettings");
 
             services.Configure<AppSettings>(appSettingsSection);
-            services.AddSingleton<IStorageService, TableStorageService>();
-            services.AddSingleton<ISlackService, SlackService>();
+            services.AddSingleton<ITeamsService, TeamsService>();
             services.AddSingleton<IRestaurantService, RestaurantService>();
             services.AddSingleton<IHostedService, SchedulerService>();
-            services.AddSingleton<IUserService, UserService>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
             });
-            services.AddJwtAuthentication(appSettingsSection);
         }
 
 
@@ -76,48 +73,6 @@ namespace LunchAgentService
             {
                 app.UseExceptionHandler("/Error");
             }
-        }
-    }
-
-    public static class ServicesExtensions
-    {
-        public static void AddJwtAuthentication(this IServiceCollection services, IConfigurationSection appSettingsSection)
-        {
-            var appSettings = appSettingsSection.Get<AppSettings>();
-            var key = Encoding.ASCII.GetBytes(appSettings.Secret);
-
-            services.AddAuthentication(x =>
-                {
-                    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
-                .AddJwtBearer(x =>
-                {
-                    x.Events = new JwtBearerEvents
-                    {
-                        OnTokenValidated = context =>
-                        {
-                            var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
-                            var userId = context.Principal.Identity.Name;
-                            var user = userService.GetById(userId);
-                            if (user == null)
-                            {
-                                // return unauthorized if user no longer exists
-                                context.Fail("Unauthorized");
-                            }
-                            return Task.CompletedTask;
-                        }
-                    };
-                    x.RequireHttpsMetadata = false;
-                    x.SaveToken = true;
-                    x.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(key),
-                        ValidateIssuer = false,
-                        ValidateAudience = false
-                    };
-                });
         }
     }
 }

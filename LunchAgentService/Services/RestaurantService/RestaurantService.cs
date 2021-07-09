@@ -6,22 +6,22 @@ using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
-using LunchAgentService.Entities;
-using LunchAgentService.Services.DatabaseService;
+using LunchAgentService.Helpers;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 
-namespace LunchAgentService.Services
+namespace LunchAgentService.Services.RestaurantService
 {
     public class RestaurantService : IRestaurantService
     {
         private ILogger Log { get; }
-        private IStorageService StorageService { get; }
+        private readonly AppSettings _appSettings;
 
-        public RestaurantService(IStorageService storageService, ILogger<RestaurantService> log)
+        public RestaurantService( ILogger<RestaurantService> log, IOptions<AppSettings> appSettings)
         {
             Log = log;
-            StorageService = storageService;
+            _appSettings = appSettings.Value;
         }
 
         public List<RestaurantMenu> GetMenus()
@@ -32,28 +32,10 @@ namespace LunchAgentService.Services
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-            var restaurants = StorageService.Get<Restaurant>();
+            var restaurants = _appSettings.RestaurantSettings;
 
             foreach (var setting in restaurants)
-            {
-                if (setting.Name.Contains("Bistrotéka"))
-                    using (var client = new HttpClient())
-                    {
-                        try
-                        {
-                            var data = client.GetStringAsync(setting.Url).Result;
-
-                            result.Add(new RestaurantMenu()
-                            {
-                                Items = ParseMenuFromBistroteka(data),
-                                Restaurant = setting
-                            });
-                        }
-                        catch (Exception e)
-                        {
-                            Log.LogError($"Failed to get menu from {setting.Name}", e);
-                        }
-                    }
+            {                  
 
                 using (var client = new WebClient())
                 {
@@ -79,8 +61,9 @@ namespace LunchAgentService.Services
 
                     result.Add(new RestaurantMenu()
                     {
-                        Restaurant = setting,
-                        Items = parsedMenu
+                        Items = parsedMenu,
+                        Restaurant = new Restaurant(setting)
+
                     });
                 }
                 catch (Exception e)
@@ -91,37 +74,6 @@ namespace LunchAgentService.Services
                 Log.LogDebug($"Sucessfully got menu from {setting.Name}");
             }
 
-
-            return result;
-        }
-
-        private List<RestaurantMenuItem> ParseMenuFromBistroteka(string data)
-        {
-            var result = new List<RestaurantMenuItem>();
-
-            var items = JArray.Parse(data);
-
-            var todayItems = items.Where(x => DateTime.TryParse(x["dateFrom"].Value<string>(), out var value) == true && value == DateTime.Today);
-
-            foreach (var todayItem in todayItems)
-            {
-                var item = new RestaurantMenuItem();
-
-                if (todayItem["type"].Value<string>() == "polevka")
-                {
-                    item.FoodType = FoodType.Soup;
-                    item.Description = todayItem["name"].Value<string>();
-                    item.Price = todayItem["price"].Value<string>();
-                }
-                else
-                {
-                    item.FoodType = FoodType.Main;
-                    item.Description = todayItem["name"].Value<string>();
-                    item.Price = todayItem["price"].Value<string>();
-                }
-
-                result.Add(item);
-            }
 
             return result;
         }
@@ -149,7 +101,7 @@ namespace LunchAgentService.Services
                     item.Description = Regex.Replace(food.SelectNodes(".//td").Single(x => x.GetClasses().Contains("food")).InnerText, "\\d+.?", string.Empty);
                     item.Price = food.SelectNodes(".//td").Single(x => x.GetClasses().Contains("prize")).InnerText;
                     item.Index = food.SelectNodes(".//td").Single(x => x.GetClasses().Contains("no")).InnerText;
-                }
+                }                
                 result.Add(item);
             }
 

@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using LunchAgentService.Helpers;
 using LunchAgentService.Services.RestaurantService;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace LunchAgentService.Services.TeamsService
@@ -25,22 +21,16 @@ namespace LunchAgentService.Services.TeamsService
             _appSettings = appSettings.Value;
         }      
 
-
         public string Post(List<RestaurantMenu> menus)
         {
             string requestUri = _appSettings.TeamsBotLink;
 
-
-
             Log.LogDebug($"Posting request to teams uri: {requestUri}");
 
             TeamsMessage requestObject = new TeamsMessage();
-            requestObject.Title = "Menicka na den " + DateTime.Now;
-            requestObject.Summary = "Menicka na den " + DateTime.Now;
+            requestObject.Title = "Menicka na den " + DateTime.Now.Date.ToString("dd.MM.yyyy");
+            requestObject.Summary = "Menicka na den " + DateTime.Now.Date.ToString("dd.MM.yyyy");
             requestObject.Text = FormatMenuForTeams(menus);
-
-
-
 
             var data = new StringContent(JObject.FromObject(requestObject).ToString(), Encoding.UTF8, "application/json");
             var test = JObject.FromObject(requestObject);
@@ -69,41 +59,6 @@ namespace LunchAgentService.Services.TeamsService
        
         private string FormatMenuForTeams(List<RestaurantMenu> menus)
         {
-            Log.LogDebug("Formating menu for teams");
-
-
-            //TeamsMessage teamsMessage = new TeamsMessage();
-            //teamsMessage.Type = "AdaptiveCard";
-            //teamsMessage.Schema = "http://adaptivecards.io/schemas/adaptive-card.json";
-            //teamsMessage.Version = "1.3";
-            //teamsMessage.Title = "Title";
-            //teamsMessage.Summary = "summary";
-            //teamsMessage.Text = "text";
-            //teamsMessage.ThemeColor = "#00A0B0";
-
-            //foreach (var menu in menus)
-            //{
-            //    RestaurantContainer restaurantContainer = new RestaurantContainer();
-            //    restaurantContainer.Type = "Container";
-            //    foreach (var dish in menu.Items)
-            //    {
-            //        MessageItem messageItem = new MessageItem();
-            //        messageItem.Type = "TextBlock";
-            //        messageItem.Text = dish.Description;
-            //        messageItem.Wrap = true;
-            //        messageItem.Spacing = "none";
-            //        messageItem.Size = "default";
-            //        messageItem.Weight = "default";
-            //        messageItem.Color = "default";
-
-            //        restaurantContainer.Dishes.Add(messageItem);
-            //    }
-            //    teamsMessage.Body.Add(restaurantContainer);
-
-            //}
-
-
-
             Log.LogDebug("Formating menu for teams");
 
             var result = new List<string>();

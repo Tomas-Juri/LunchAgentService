@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using LunchAgentService.Helpers;
+﻿using LunchAgentService.Helpers;
 
 namespace LunchAgentService.Services.RestaurantService
 {
@@ -14,8 +10,7 @@ namespace LunchAgentService.Services.RestaurantService
         public Restaurant(RestaurantSettings restaurantSettings)
         {
             Name = restaurantSettings.Name;
-            Url = restaurantSettings.Url;
-                
+            Url = restaurantSettings.Url;                
         }
     }
 }

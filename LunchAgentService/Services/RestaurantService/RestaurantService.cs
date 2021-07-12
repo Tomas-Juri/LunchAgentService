@@ -35,8 +35,8 @@ namespace LunchAgentService.Services.RestaurantService
             var restaurants = _appSettings.RestaurantSettings;
 
             foreach (var setting in restaurants)
-            {                  
-
+            {
+                //web to http
                 using (var client = new WebClient())
                 {
                     try
@@ -55,9 +55,7 @@ namespace LunchAgentService.Services.RestaurantService
 
                 try
                 {
-                    var parsedMenu = setting.Url.Contains("makalu")
-                        ? ParseMenuFromMakalu(document.DocumentNode)
-                        : ParseMenuFromMenicka(document.DocumentNode);
+                    var parsedMenu = setting.Url.Contains("makalu")? ParseMenuFromMakalu(document.DocumentNode): ParseMenuFromMenicka(document.DocumentNode);
 
                     result.Add(new RestaurantMenu()
                     {
@@ -110,19 +108,17 @@ namespace LunchAgentService.Services.RestaurantService
 
         private static List<RestaurantMenuItem> ParseMenuFromMakalu(HtmlNode todayMenu)
         {
-            var result = new List<RestaurantMenuItem>();
+            List<RestaurantMenuItem> result = new List<RestaurantMenuItem>();
 
-            var todayString = GetTodayInCzech();
+            string todayString = GetTodayInCzech();
 
-            var todayNode = string.Join(" ", todayMenu.SelectNodes(".//div[contains(@class,TJStrana)]").Where(x => x.GetClasses().Contains("TJStrana")).Select(x => x.InnerHtml));
+            string todayNode = string.Join(" ", todayMenu.SelectNodes(".//div[contains(@class,TJStrana)]").Where(x => x.GetClasses().Contains("TJStrana")).Select(x => x.InnerHtml));
 
-            var start = todayNode.IndexOf(todayString) + 13;
+            int start = todayNode.IndexOf(todayString) + 13;
 
-            var end = todayNode.Substring(start, todayNode.Length - start).IndexOf("Mix denn");
+            string body = todayNode.Substring(start, todayNode.Length - start);
 
-            var body = todayNode.Substring(start, end);
-
-            var soupString = Regex.Match(body, "Polévky:<br>.+?(?=(1.))");
+            Match soupString = Regex.Match(body, "Polévky:<br>.+?(?=(1.))");
 
             foreach (Match item in Regex.Matches(soupString.Value, "[r]>.+?(?=<[bs])"))
             {
@@ -147,6 +143,10 @@ namespace LunchAgentService.Services.RestaurantService
                 };
 
                 result.Add(item);
+                if(item.Description.Contains("Mix"))
+                {
+                    break;
+                }
             }
 
             return result;

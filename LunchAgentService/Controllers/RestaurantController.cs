@@ -20,7 +20,7 @@ namespace LunchAgentService.Controllers
         [HttpGet("menus")]
         public IActionResult GetMenus()
         {
-            List<RestaurantMenu> menus = new List<RestaurantMenu>();
+            var menus = new List<RestaurantMenu>();
             menus = RestaurantService.GetMenus();
 
             TeamsService.Post(menus);

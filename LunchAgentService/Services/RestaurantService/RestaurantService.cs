@@ -70,7 +70,6 @@ namespace LunchAgentService.Services.RestaurantService
                 Log.LogDebug($"Sucessfully got menu from {setting.Name}");
             }
 
-
             return result;
         }
 
@@ -108,13 +107,13 @@ namespace LunchAgentService.Services.RestaurantService
         {
             List<RestaurantMenuItem> result = new List<RestaurantMenuItem>();
 
-            string todayString = GetTodayInCzech();
+            var todayString = GetTodayInCzech();
 
-            string todayNode = string.Join(" ", todayMenu.SelectNodes(".//div[contains(@class,TJStrana)]").Where(x => x.GetClasses().Contains("TJStrana")).Select(x => x.InnerHtml));
+            var todayNode = string.Join(" ", todayMenu.SelectNodes(".//div[contains(@class,TJStrana)]").Where(x => x.GetClasses().Contains("TJStrana")).Select(x => x.InnerHtml));
 
-            int start = todayNode.IndexOf(todayString) + 13;
+            var start = todayNode.IndexOf(todayString) + 13;
 
-            string body = todayNode.Substring(start, todayNode.Length - start);
+            var body = todayNode.Substring(start, todayNode.Length - start);
 
             Match soupString = Regex.Match(body, "Polévky:<br>.+?(?=(1.))");
 
@@ -141,10 +140,10 @@ namespace LunchAgentService.Services.RestaurantService
                 };
 
                 result.Add(item);
-                if(item.Description.Contains("Mix"))
-                {
+
+                if(item.Description.Contains("Mix"))                
                     break;
-                }
+                
             }
 
             return result;

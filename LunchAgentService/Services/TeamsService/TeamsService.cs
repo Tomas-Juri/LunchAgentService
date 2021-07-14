@@ -27,13 +27,12 @@ namespace LunchAgentService.Services.TeamsService
 
             Log.LogDebug($"Posting request to teams uri: {requestUri}");
 
-            TeamsMessage requestObject = new TeamsMessage();
-            requestObject.Title = "Menicka na den " + DateTime.Now.Date.ToString("dd.MM.yyyy");
-            requestObject.Summary = "Menicka na den " + DateTime.Now.Date.ToString("dd.MM.yyyy");
+            var requestObject = new TeamsMessage();
+            requestObject.Title = "Meníčka na den " + DateTime.Now.Date.ToString("dd.MM.yyyy");
+            requestObject.Summary = "Meníčka na den " + DateTime.Now.Date.ToString("dd.MM.yyyy");
             requestObject.Text = FormatMenuForTeams(menus);
 
             var data = new StringContent(JObject.FromObject(requestObject).ToString(), Encoding.UTF8, "application/json");
-            var test = JObject.FromObject(requestObject);
 
             using (var client = new HttpClient())
             {

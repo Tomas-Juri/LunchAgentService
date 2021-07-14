@@ -36,20 +36,19 @@ namespace LunchAgentService.Services
                     continue;
                 }
 
-                Log.LogDebug("Getting menus");
-
-                var menus = RestaurantService.GetMenus();
-
-                Log.LogDebug("Posting menus to teams");
-
                 try
                 {
                     if (DateTime.Now.Hour == 10)
                     {
+                        Log.LogDebug("Getting menus");
+
+                        var menus = RestaurantService.GetMenus();
+
                         TeamsService.Post(menus);
 
-                    }
+                        Log.LogDebug("Posting menus to teams");
 
+                    }
                     Log.LogDebug("Menus posted sucessfully");
                 }
                 catch (Exception exception)

@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using LunchAgentService.Services.TeamsService;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System;
 
 namespace LunchAgentService.Controllers
 {
@@ -22,6 +24,8 @@ namespace LunchAgentService.Controllers
         {
             var menus = new List<RestaurantMenu>();
             menus = RestaurantService.GetMenus();
+
+            Trace.TraceInformation(DateTime.Now.ToString());
 
             TeamsService.Post(menus);
 

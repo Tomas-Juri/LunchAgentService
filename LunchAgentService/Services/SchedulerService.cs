@@ -40,8 +40,9 @@ namespace LunchAgentService.Services
                         Trace.TraceInformation("Posting menus to teams");
                         TeamsService.Post(menus);
 
-                        await Task.Delay(TimeSpan.FromHours(23), cancellationToken);
                         Trace.TraceInformation("Menus posted sucessfully");
+                        await Task.Delay(TimeSpan.FromHours(23), cancellationToken);
+
                     }
                     catch (Exception exc)
                     {

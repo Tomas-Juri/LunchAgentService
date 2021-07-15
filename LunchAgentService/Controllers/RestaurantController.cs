@@ -1,57 +1,31 @@
-﻿using System.ComponentModel.DataAnnotations;
-using LunchAgentService.Entities;
-using LunchAgentService.Services;
-using LunchAgentService.Services.DatabaseService;
-using Microsoft.AspNetCore.Authorization;
+﻿using LunchAgentService.Services.RestaurantService;
 using Microsoft.AspNetCore.Mvc;
+using LunchAgentService.Services.TeamsService;
+using System.Collections.Generic;
 
 namespace LunchAgentService.Controllers
 {
-    [Route("api/restaurant")]
-    [Authorize(Roles = Role.SuperAdmin + "," + Role.Admin)]
+    [Route("Restaurant")]
     public class RestaurantController : Controller
     {
         private IRestaurantService RestaurantService { get; }
-        private IStorageService StorageService { get; }
+        private ITeamsService TeamsService { get; }
 
-        public RestaurantController(IRestaurantService restaurantService, IStorageService storageService)
+        public RestaurantController(IRestaurantService restaurantService, ITeamsService teamsService)
         {
             RestaurantService = restaurantService;
-            StorageService = storageService;
+            TeamsService = teamsService;
         }
 
         [HttpGet("menus")]
-        [AllowAnonymous]
         public IActionResult GetMenus()
         {
-            return new JsonResult(RestaurantService.GetMenus());
-        }
+            var menus = new List<RestaurantMenu>();
+            menus = RestaurantService.GetMenus();
 
-        [HttpGet("setting")]
-        [AllowAnonymous]
-        public IActionResult GetSetting()
-        {
-            return new JsonResult(StorageService.Get<Restaurant>());
-        }
+            TeamsService.Post(menus);
 
-        [HttpGet("restaurant/{id}")]
-        [AllowAnonymous]
-        public IActionResult GetRestaurant([FromRoute][Required]string id)
-        {
-            return new JsonResult(StorageService.Get<Restaurant>(id));
-        }
-
-        [HttpDelete("restaurant/{id}")]
-        public IActionResult DeleteRestaurant([FromRoute][Required]string id)
-        {
-            StorageService.Delete<Restaurant>(id);
-            return new OkResult();
-        }
-
-        [HttpPost("restaurant")]
-        public IActionResult AddOrUpdateRestaurant([FromBody][Required]Restaurant restaurant)
-        {
-            return new JsonResult(StorageService.AddOrUpdate(restaurant));
+            return new JsonResult(menus);
         }
     }
 }

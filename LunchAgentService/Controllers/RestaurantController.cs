@@ -23,6 +23,8 @@ namespace LunchAgentService.Controllers
             var menus = new List<RestaurantMenu>();
             menus = RestaurantService.GetMenus();
 
+            Trace.TraceInformation("Datetime.Now from controller" + DateTime.Now.ToString());
+
             TeamsService.Post(menus);
 
             return new JsonResult(menus);

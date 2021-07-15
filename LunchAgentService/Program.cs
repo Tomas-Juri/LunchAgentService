@@ -15,18 +15,11 @@ namespace LunchAgentService
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .ConfigureLogging(logging => logging.AddAzureWebAppDiagnostics())
-                .ConfigureServices(serviceCollection => serviceCollection
-                    .Configure<AzureFileLoggerOptions>(options =>
-                    {
-                        options.FileName = "lunchagent-log";
-                        options.FileSizeLimit = 50 * 1024;
-                        options.RetainedFileCountLimit = 5;
-                    }).Configure<AzureBlobLoggerOptions>(options =>
-                    {
-                        options.BlobName = "log.txt";
-                    }))
+                .UseStartup<Startup>().ConfigureLogging(logging =>
+                {
+                    logging.ClearProviders();
+                    logging.AddConsole();
+                })
                 .Build();
     }
 }

@@ -15,11 +15,11 @@ namespace LunchAgentService
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>().ConfigureLogging(logging =>
+                .ConfigureLogging(logging =>
                 {
                     logging.ClearProviders();
-                    logging.AddConsole();
-                })
+                    logging.AddAzureWebAppDiagnostics();
+                }).UseStartup<Startup>()
                 .Build();
     }
 }

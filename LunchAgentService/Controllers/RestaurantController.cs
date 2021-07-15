@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using LunchAgentService.Services.TeamsService;
 using System.Collections.Generic;
 using System;
-using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 namespace LunchAgentService.Controllers
 {
@@ -12,9 +12,11 @@ namespace LunchAgentService.Controllers
     {
         private IRestaurantService RestaurantService { get; }
         private ITeamsService TeamsService { get; }
+        private ILogger Log { get; }
 
-        public RestaurantController(IRestaurantService restaurantService, ITeamsService teamsService)
+        public RestaurantController(IRestaurantService restaurantService, ITeamsService teamsService, ILogger<RestaurantController> log)
         {
+            Log = log;
             RestaurantService = restaurantService;
             TeamsService = teamsService;
         }
@@ -25,7 +27,11 @@ namespace LunchAgentService.Controllers
             var menus = new List<RestaurantMenu>();
             menus = RestaurantService.GetMenus();
 
-            Trace.TraceInformation("Datetime.Now from controller" + DateTime.Now.ToString());
+            Log.LogInformation("Datetime.Now from controller" + DateTime.Now.ToString());
+            Log.LogError("Datetime.Now from controller" + DateTime.Now.ToString());
+            Log.LogDebug("Datetime.Now from controller" + DateTime.Now.ToString());
+            Log.LogWarning("Datetime.Now from controller" + DateTime.Now.ToString());
+            Log.LogTrace("Datetime.Now from controller" + DateTime.Now.ToString());
 
             TeamsService.Post(menus);
 

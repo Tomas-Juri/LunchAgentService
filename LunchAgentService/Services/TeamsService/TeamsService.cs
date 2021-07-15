@@ -23,7 +23,7 @@ namespace LunchAgentService.Services.TeamsService
 
         public string Post(List<RestaurantMenu> menus)
         {
-            string requestUri = _appSettings.TeamsBotLink;
+            var requestUri = _appSettings.TeamsBotLink;
 
             Log.LogDebug($"Posting request to teams uri: {requestUri}");
 

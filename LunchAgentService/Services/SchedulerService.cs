@@ -26,6 +26,12 @@ namespace LunchAgentService.Services
 
             while (cancellationToken.IsCancellationRequested == false)
             {
+                if (DateTime.Now.DayOfWeek == DayOfWeek.Sunday || DateTime.Now.DayOfWeek == DayOfWeek.Saturday)
+                {
+                    Log.LogDebug("Sleeping until tomorrow");
+
+                    await Task.Delay(TimeSpan.FromDays(1), cancellationToken);
+                }
 
                 if(DateTime.Now.Hour == 10)
                 {
@@ -41,21 +47,17 @@ namespace LunchAgentService.Services
 
                         await Task.Delay(TimeSpan.FromHours(23), cancellationToken);
 
+                        Log.LogDebug("Menus posted sucessfully");
+
                     }
                     catch (Exception exc)
                     {
                         Log.LogError("Failed to post menus to teams", exc);
+
+                        Log.LogDebug("Sleeping for 5 minutes");
+
+                        await Task.Delay(TimeSpan.FromMinutes(5), cancellationToken);
                     }
-
-                    Log.LogDebug("Menus posted sucessfully");
-                }
-
-                if (DateTime.Now.DayOfWeek == DayOfWeek.Sunday || DateTime.Now.DayOfWeek == DayOfWeek.Saturday)
-                {
-                    Log.LogDebug("Sleeping until tomorrow");
-
-                    await Task.Delay(TimeSpan.FromDays(1), cancellationToken);
-
                 }
             }
         }

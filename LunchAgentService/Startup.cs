@@ -15,11 +15,13 @@ namespace LunchAgentService
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(ILogger<Startup> logger, IConfiguration configuration)
         {
+            Logger = logger;
             Configuration = configuration;
         }
 
+        public ILogger Logger { get; }
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.

@@ -4,18 +4,20 @@ using System.Net.Http;
 using System.Text;
 using LunchAgentService.Helpers;
 using LunchAgentService.Services.RestaurantService;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
-using System.Diagnostics;
 
 namespace LunchAgentService.Services.TeamsService
 {
     public class TeamsService : ITeamsService
     {
+        private ILogger Log { get; }
         private readonly AppSettings _appSettings;
 
-        public TeamsService(IOptions<AppSettings> appSettings)
+        public TeamsService(ILogger<TeamsService> log, IOptions<AppSettings> appSettings)
         {
+            Log = log;
             _appSettings = appSettings.Value;
         }      
 
@@ -23,7 +25,7 @@ namespace LunchAgentService.Services.TeamsService
         {
             var requestUri = _appSettings.TeamsBotLink;
 
-            Trace.TraceInformation($"Posting request to teams uri: {requestUri}");
+            Log.LogDebug($"Posting request to teams uri: {requestUri}");
 
             var requestObject = new TeamsMessage();
             requestObject.Title = "Meníčka na den " + DateTime.Now.Date.ToString("dd.MM.yyyy");
@@ -41,13 +43,13 @@ namespace LunchAgentService.Services.TeamsService
                     response.Wait();
                     var result = response.Result.Content.ReadAsStringAsync().Result;
 
-                    Trace.TraceInformation($"Request posted successfuly. Response: {response.Result.StatusCode}");                    
+                    Log.LogDebug($"Request posted successfuly. Response: {response.Result.StatusCode}");
 
                     return result;
                 }
                 catch (Exception e)
                 {
-                    Trace.TraceError("Failed posting request", e);
+                    Log.LogError("Failed posting request", e);
 
                     return null;
                 }
@@ -56,7 +58,7 @@ namespace LunchAgentService.Services.TeamsService
        
         private string FormatMenuForTeams(List<RestaurantMenu> menus)
         {
-            Trace.TraceInformation("Formating menu for teams");
+            Log.LogDebug("Formating menu for teams");
 
             var result = new List<string>();
 

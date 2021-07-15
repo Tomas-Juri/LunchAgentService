@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using LunchAgentService.Services.TeamsService;
 using LunchAgentService.Services.RestaurantService;
-using System.Diagnostics;
 
 namespace LunchAgentService.Services
 {
@@ -11,22 +11,25 @@ namespace LunchAgentService.Services
     {
         private ITeamsService TeamsService { get; }
         private IRestaurantService RestaurantService { get; }
+        private ILogger Log { get; }
 
-        public SchedulerService(IRestaurantService restaurantService, ITeamsService teamsService)
+        public SchedulerService(IRestaurantService restaurantService, ITeamsService teamsService, ILogger<SchedulerService> log)
         {
             RestaurantService = restaurantService;
             TeamsService = teamsService;
+            Log = log;
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            Trace.TraceInformation("Starting scheduling");            
+            Log.LogDebug("Starting scheduling");
 
             while (cancellationToken.IsCancellationRequested == false)
             {
                 if (DateTime.Now.DayOfWeek == DayOfWeek.Sunday || DateTime.Now.DayOfWeek == DayOfWeek.Saturday)
                 {
-                    Trace.TraceInformation("Sleeping until tomorrow");
+                    Log.LogDebug("Sleeping until tomorrow");
+
                     await Task.Delay(TimeSpan.FromDays(1), cancellationToken);
                 }
 
@@ -34,21 +37,26 @@ namespace LunchAgentService.Services
                 {
                     try
                     {
-                        Trace.TraceInformation("Getting menus");
+                        Log.LogDebug("Getting menus");
+
                         var menus = RestaurantService.GetMenus();
 
-                        Trace.TraceInformation("Posting menus to teams");
                         TeamsService.Post(menus);
 
+                        Log.LogDebug("Posting menus to teams");
+
                         await Task.Delay(TimeSpan.FromHours(23), cancellationToken);
-                        Trace.TraceInformation("Menus posted sucessfully");
+
+                        Log.LogDebug("Menus posted sucessfully");
+
                     }
                     catch (Exception exc)
                     {
-                        Trace.TraceError("Failed to post menus to teams", exc);
+                        Log.LogError("Failed to post menus to teams", exc);
+
+                        Log.LogDebug("Sleeping for 5 minutes");
 
                         await Task.Delay(TimeSpan.FromMinutes(5), cancellationToken);
-                        Trace.TraceInformation("Sleeping for 5 minutes");
                     }
                 }
             }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace LunchAgentService.Services
+namespace LunchAgentService.Services.RestaurantService
 {
     public interface IRestaurantService
     {

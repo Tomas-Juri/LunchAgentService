@@ -1,4 +1,4 @@
-﻿namespace LunchAgentService.Services
+﻿namespace LunchAgentService.Services.RestaurantService
 {
     public class RestaurantMenuItem
     {

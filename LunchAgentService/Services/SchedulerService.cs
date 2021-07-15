@@ -2,19 +2,21 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using LunchAgentService.Services.TeamsService;
+using LunchAgentService.Services.RestaurantService;
 
 namespace LunchAgentService.Services
 {
     public class SchedulerService : HostedService
     {
-        private ISlackService SlackService { get; }
+        private ITeamsService TeamsService { get; }
         private IRestaurantService RestaurantService { get; }
         private ILogger Log { get; }
 
-        public SchedulerService(IRestaurantService restaurantService, ISlackService slackService, ILogger<SchedulerService> log)
+        public SchedulerService(IRestaurantService restaurantService, ITeamsService teamsService, ILogger<SchedulerService> log)
         {
             RestaurantService = restaurantService;
-            SlackService = slackService;
+            TeamsService = teamsService;
             Log = log;
         }
 
@@ -24,35 +26,39 @@ namespace LunchAgentService.Services
 
             while (cancellationToken.IsCancellationRequested == false)
             {
-                if (DateTime.Now.Hour > 11 || DateTime.Now.DayOfWeek == DayOfWeek.Sunday || DateTime.Now.DayOfWeek == DayOfWeek.Saturday)
+                if (DateTime.Now.DayOfWeek == DayOfWeek.Sunday || DateTime.Now.DayOfWeek == DayOfWeek.Saturday)
                 {
                     Log.LogDebug("Sleeping until tomorrow");
 
-                    await Task.Delay(DateTime.Today.AddHours(7).AddDays(1) - DateTime.Now, cancellationToken);
-
-                    continue;
+                    await Task.Delay(TimeSpan.FromDays(1), cancellationToken);
                 }
 
-                Log.LogDebug("Getting menus");
-
-                var menus = RestaurantService.GetMenus();
-
-                Log.LogDebug("Posting menus to slack");
-
-                try
+                if(DateTime.Now.Hour == 10)
                 {
-                    SlackService.ProcessMenus(menus);
+                    try
+                    {
+                        Log.LogDebug("Getting menus");
 
-                    Log.LogDebug("Menus posted sucessfully");
+                        var menus = RestaurantService.GetMenus();
+
+                        TeamsService.Post(menus);
+
+                        Log.LogDebug("Posting menus to teams");
+
+                        await Task.Delay(TimeSpan.FromHours(23), cancellationToken);
+
+                        Log.LogDebug("Menus posted sucessfully");
+
+                    }
+                    catch (Exception exc)
+                    {
+                        Log.LogError("Failed to post menus to teams", exc);
+
+                        Log.LogDebug("Sleeping for 5 minutes");
+
+                        await Task.Delay(TimeSpan.FromMinutes(5), cancellationToken);
+                    }
                 }
-                catch (Exception exception)
-                {
-                    Log.LogError("Failed to post menus to slack", exception);
-                }
-
-                Log.LogDebug("Sleeping for 15 minutes");
-
-                await Task.Delay(TimeSpan.FromMinutes(15), cancellationToken);
             }
         }
     }

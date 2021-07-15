@@ -5,6 +5,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
+    <UserSecretsId>972d7bf4-a9a6-4b3f-817c-2df7387cc3a6</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

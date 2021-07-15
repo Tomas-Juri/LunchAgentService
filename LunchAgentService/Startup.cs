@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
@@ -15,13 +14,11 @@ namespace LunchAgentService
 {
     public class Startup
     {
-        public Startup(ILogger<Startup> logger, IConfiguration configuration)
+        public Startup(IConfiguration configuration)
         {
-            Logger = logger;
             Configuration = configuration;
         }
 
-        public ILogger Logger { get; }
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.

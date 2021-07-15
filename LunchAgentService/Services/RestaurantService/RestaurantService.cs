@@ -6,19 +6,17 @@ using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using LunchAgentService.Helpers;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Diagnostics;
 
 namespace LunchAgentService.Services.RestaurantService
 {
     public class RestaurantService : IRestaurantService
     {
-        private ILogger Log { get; }
-        private readonly AppSettings _appSettings;
+        private readonly AppSettings _appSettings;        
 
-        public RestaurantService( ILogger<RestaurantService> log, IOptions<AppSettings> appSettings)
+        public RestaurantService(IOptions<AppSettings> appSettings)
         {
-            Log = log;
             _appSettings = appSettings.Value;
         }
 
@@ -47,7 +45,7 @@ namespace LunchAgentService.Services.RestaurantService
                     }
                     catch (Exception e)
                     {
-                        Log.LogDebug($"Failed to get menu from {setting.Name}", e);
+                        Trace.TraceInformation($"Failed to get menu from {setting.Name}", e);
                     }
                 }
 
@@ -64,10 +62,10 @@ namespace LunchAgentService.Services.RestaurantService
                 }
                 catch (Exception e)
                 {
-                    Log.LogDebug($"Failed to parse menu from {setting.Name}", e);
+                    Trace.TraceInformation($"Failed to parse menu from {setting.Name}", e);
                 }
 
-                Log.LogDebug($"Sucessfully got menu from {setting.Name}");
+                Trace.TraceInformation($"Sucessfully got menu from {setting.Name}");
             }
 
             return result;

@@ -2,9 +2,13 @@
 using Microsoft.AspNetCore.Mvc;
 using LunchAgentService.Services.TeamsService;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System;
 
+using System.Diagnostics;
+
+
+using System;
+using Microsoft.Extensions.Logging;
+using System.Linq;
 namespace LunchAgentService.Controllers
 {
     [Route("Restaurant")]
@@ -12,9 +16,11 @@ namespace LunchAgentService.Controllers
     {
         private IRestaurantService RestaurantService { get; }
         private ITeamsService TeamsService { get; }
+        private ILogger Log { get; }
 
-        public RestaurantController(IRestaurantService restaurantService, ITeamsService teamsService)
+        public RestaurantController(IRestaurantService restaurantService, ITeamsService teamsService, ILogger<RestaurantController> log)
         {
+            Log = log;
             RestaurantService = restaurantService;
             TeamsService = teamsService;
         }

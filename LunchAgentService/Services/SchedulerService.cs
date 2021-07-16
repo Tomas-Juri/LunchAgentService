@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using LunchAgentService.Services.TeamsService;
 using LunchAgentService.Services.RestaurantService;
-using System.Diagnostics;
 
 namespace LunchAgentService.Services
 {
@@ -20,8 +19,6 @@ namespace LunchAgentService.Services
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            Trace.TraceInformation("Starting scheduling");            
-
             while (cancellationToken.IsCancellationRequested == false)
             {
                 if (DateTime.Now.DayOfWeek == DayOfWeek.Sunday || DateTime.Now.DayOfWeek == DayOfWeek.Saturday)
@@ -30,7 +27,7 @@ namespace LunchAgentService.Services
                     await Task.Delay(TimeSpan.FromDays(1), cancellationToken);
                 }
 
-                if(DateTime.Now.Hour == 10)
+                if ((DateTime.Now + TimeZoneInfo.FindSystemTimeZoneById("Central Europe Standard Time").GetUtcOffset(DateTime.Now)).Hour == 10)
                 {
                     try
                     {

@@ -25,7 +25,7 @@ namespace LunchAgentService.Services
         {
             Log.LogDebug("Starting scheduling");
             Log.LogDebug("TimeZoneInfo.FindSystemTimeZoneById(Central Europe Standard Time).GetUtcOffset(DateTime.Now)).Hour: " + TimeZoneInfo.FindSystemTimeZoneById("Central Europe Standard Time").GetUtcOffset(DateTime.Now).Hours);
-            Log.LogDebug("(DateTime.Now - TimeZoneInfo.FindSystemTimeZoneById(Central Europe Standard Time).GetUtcOffset(DateTime.Now)).Hour: " + (DateTime.Now - TimeZoneInfo.FindSystemTimeZoneById("Central Europe Standard Time").GetUtcOffset(DateTime.Now)).Hour);
+            Log.LogDebug("(DateTime.Now + TimeZoneInfo.FindSystemTimeZoneById(Central Europe Standard Time).GetUtcOffset(DateTime.Now)).Hour: " + (DateTime.Now + TimeZoneInfo.FindSystemTimeZoneById("Central Europe Standard Time").GetUtcOffset(DateTime.Now)).Hour);
 
             while (cancellationToken.IsCancellationRequested == false)
             {
@@ -36,7 +36,7 @@ namespace LunchAgentService.Services
                     await Task.Delay(TimeSpan.FromDays(1), cancellationToken);
                 }
 
-                if ((DateTime.Now - TimeZoneInfo.FindSystemTimeZoneById("Central Europe Standard Time").GetUtcOffset(DateTime.Now)).Hour == 10)
+                if ((DateTime.Now + TimeZoneInfo.FindSystemTimeZoneById("Central Europe Standard Time").GetUtcOffset(DateTime.Now)).Hour == 10)
                 {
                     try
                     {

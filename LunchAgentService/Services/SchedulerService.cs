@@ -24,6 +24,8 @@ namespace LunchAgentService.Services
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             Log.LogDebug("Starting scheduling");
+            Log.LogDebug("TimeZoneInfo.FindSystemTimeZoneById(Central Europe Standard Time).GetUtcOffset(DateTime.Now)).Hour: " + TimeZoneInfo.FindSystemTimeZoneById("Central Europe Standard Time").GetUtcOffset(DateTime.Now).Hours);
+            Log.LogDebug("(DateTime.Now - TimeZoneInfo.FindSystemTimeZoneById(Central Europe Standard Time).GetUtcOffset(DateTime.Now)).Hour: " + (DateTime.Now - TimeZoneInfo.FindSystemTimeZoneById("Central Europe Standard Time").GetUtcOffset(DateTime.Now)).Hour);
 
             while (cancellationToken.IsCancellationRequested == false)
             {
@@ -34,9 +36,7 @@ namespace LunchAgentService.Services
                     await Task.Delay(TimeSpan.FromDays(1), cancellationToken);
                 }
 
-                var pragueTZ = TimeZoneInfo.GetSystemTimeZones().Single(tzi => tzi.DisplayName.Contains("Prague"));
-
-                if ((DateTime.Now - pragueTZ.GetUtcOffset(DateTime.Now)).Hour == 10)
+                if ((DateTime.Now - TimeZoneInfo.FindSystemTimeZoneById("Central Europe Standard Time").GetUtcOffset(DateTime.Now)).Hour == 10)
                 {
                     try
                     {

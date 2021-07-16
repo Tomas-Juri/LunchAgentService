@@ -27,11 +27,8 @@ namespace LunchAgentService.Controllers
             var menus = new List<RestaurantMenu>();
             menus = RestaurantService.GetMenus();
 
-            Log.LogInformation("Datetime.Now from controller" + DateTime.Now.ToString());
-            Log.LogError("Datetime.Now from controller" + DateTime.Now.ToString());
-            Log.LogDebug("Datetime.Now from controller" + DateTime.Now.ToString());
-            Log.LogWarning("Datetime.Now from controller" + DateTime.Now.ToString());
-            Log.LogTrace("Datetime.Now from controller" + DateTime.Now.ToString());
+            Log.LogInformation("Datetime.UtcNow from controller" + DateTime.UtcNow);
+
 
             TeamsService.Post(menus);
 

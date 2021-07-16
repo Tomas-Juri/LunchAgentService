@@ -28,15 +28,11 @@ namespace LunchAgentService.Controllers
             var menus = new List<RestaurantMenu>();
             menus = RestaurantService.GetMenus();
 
-            var timezone = TimeZoneInfo.GetSystemTimeZones().Single(tzi => tzi.DisplayName.Contains("Prague"));
+            var pragueTZ = TimeZoneInfo.GetSystemTimeZones().Single(tzi => tzi.DisplayName.Contains("Prague"));
 
-            var currentTimeZone = TimeZoneInfo.Local;
+            Log.LogInformation("Correct time: " + (DateTime.Now + pragueTZ.GetUtcOffset(DateTime.Now)).ToString());
 
 
-            Log.LogInformation("Prague time zone" + timezone.ToString());
-            Log.LogInformation("currentTimeZone" + currentTimeZone.ToString());
-
-            Log.LogInformation("TimeZoneInfo.Local.DaylightName" + TimeZoneInfo.Local.DaylightName.ToString());
 
 
 

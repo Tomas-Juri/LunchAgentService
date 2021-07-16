@@ -4,6 +4,7 @@ using LunchAgentService.Services.TeamsService;
 using System.Collections.Generic;
 using System;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 
 namespace LunchAgentService.Controllers
 {
@@ -27,7 +28,21 @@ namespace LunchAgentService.Controllers
             var menus = new List<RestaurantMenu>();
             menus = RestaurantService.GetMenus();
 
-            Log.LogInformation("Datetime.UtcNow from controller" + DateTime.SpecifyKind(DateTime.Now,DateTimeKind.Local));
+            var timezone = TimeZoneInfo.GetSystemTimeZones().Single(tzi => tzi.DisplayName.Contains("Prague"));
+
+            var currentTimeZone = TimeZoneInfo.Local;
+
+
+            Log.LogInformation("Prague time zone" + timezone.ToString());
+            Log.LogInformation("currentTimeZone" + currentTimeZone.ToString());
+
+            Log.LogInformation("TimeZoneInfo.Local.DaylightName" + TimeZoneInfo.Local.DaylightName.ToString());
+
+
+
+
+
+
 
 
             TeamsService.Post(menus);

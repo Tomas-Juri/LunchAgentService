@@ -6,17 +6,3 @@ This is basically a version 2.0 of my previous project [LunchAgent](https://gith
 
 Application is using [menicka.cz](https://www.menicka.cz) website for getting data
 
----
-
-#### Tech stack:
-* C#
-* .NET Core 2.2 
-* Mongo DB
-* Nuget :
-  * HtmlAgilityPack
-  * Newtonsoft.Json
-
-####  Tool stack:
- - Visual Studio 2017
- - Git (SourceTree)
-

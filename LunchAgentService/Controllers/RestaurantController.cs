@@ -28,19 +28,6 @@ namespace LunchAgentService.Controllers
             var menus = new List<RestaurantMenu>();
             menus = RestaurantService.GetMenus();
 
-            var pragueTZ = TimeZoneInfo.GetSystemTimeZones().Single(tzi => tzi.DisplayName.Contains("Prague"));
-
-            Log.LogInformation("Correct time: " + (DateTime.Now + pragueTZ.GetUtcOffset(DateTime.Now)).ToString());
-
-
-
-
-
-
-
-
-
-
             TeamsService.Post(menus);
 
             return new JsonResult(menus);

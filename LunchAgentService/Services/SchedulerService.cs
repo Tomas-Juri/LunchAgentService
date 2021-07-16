@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using LunchAgentService.Services.TeamsService;
 using LunchAgentService.Services.RestaurantService;
+using System.Linq;
 
 namespace LunchAgentService.Services
 {
@@ -33,7 +34,9 @@ namespace LunchAgentService.Services
                     await Task.Delay(TimeSpan.FromDays(1), cancellationToken);
                 }
 
-                if(DateTime.Now.Hour == 10)
+                var pragueTZ = TimeZoneInfo.GetSystemTimeZones().Single(tzi => tzi.DisplayName.Contains("Prague"));
+
+                if ((DateTime.Now - pragueTZ.GetUtcOffset(DateTime.Now)).Hour == 10)
                 {
                     try
                     {

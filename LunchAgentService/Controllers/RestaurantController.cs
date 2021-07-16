@@ -4,6 +4,7 @@ using LunchAgentService.Services.TeamsService;
 using System.Collections.Generic;
 using System;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 
 namespace LunchAgentService.Controllers
 {
@@ -26,12 +27,6 @@ namespace LunchAgentService.Controllers
         {
             var menus = new List<RestaurantMenu>();
             menus = RestaurantService.GetMenus();
-
-            Log.LogInformation("Datetime.Now from controller" + DateTime.Now.ToString());
-            Log.LogError("Datetime.Now from controller" + DateTime.Now.ToString());
-            Log.LogDebug("Datetime.Now from controller" + DateTime.Now.ToString());
-            Log.LogWarning("Datetime.Now from controller" + DateTime.Now.ToString());
-            Log.LogTrace("Datetime.Now from controller" + DateTime.Now.ToString());
 
             TeamsService.Post(menus);
 

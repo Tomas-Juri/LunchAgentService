@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Azure.Data.Tables" Version="12.7.1" />
+      <PackageReference Include="Google.Apis.Auth" Version="1.58.0" />
+      <PackageReference Include="Google.Apis.HangoutsChat.v1" Version="1.58.0.2898" />
+      <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.1.1" />
+    </ItemGroup>
+
+</Project>

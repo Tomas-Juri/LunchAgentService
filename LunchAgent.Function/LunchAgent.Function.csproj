@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <AzureFunctionsVersion>V4</AzureFunctionsVersion>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Google.Apis.Auth" Version="1.58.0" />
+        <PackageReference Include="Google.Apis.HangoutsChat.v1" Version="1.58.0.2898" />
+        <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.0.0" />
+        <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.ApplicationInsights" Version="1.0.0-preview4" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Update="host.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="local.settings.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+        </None>
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\LunchAgent.Core\LunchAgent.Core.csproj" />
+    </ItemGroup>
+</Project>

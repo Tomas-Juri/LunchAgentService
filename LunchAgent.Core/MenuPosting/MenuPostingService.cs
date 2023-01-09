@@ -40,9 +40,7 @@ public class MenuPostingService : IMenuPostingService
         _logger.LogInformation("Getting available spaces.");
         var spaces = await _googleChatService.GetSpaces();
 
-#if DEBUG
-        spaces = spaces.Where(x => x.DisplayName == "Lunch Agent ZL - TEST").ToList();
-#endif
+        //         spaces = spaces.Where(x => x.DisplayName == "Lunch Agent ZL - TEST").ToList();
         
         _logger.LogInformation("Start sending messages.");
         foreach (var space in spaces)

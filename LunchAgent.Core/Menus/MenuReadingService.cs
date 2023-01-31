@@ -113,42 +113,23 @@ public class MenuReadingService : IMenuReadingService
 
         var todayString = GetTodayInCzech();
 
-        var todayNode = string.Join(" ",
-            todayMenu.SelectNodes(".//div[contains(@class,TJStrana)]").Where(x => x.GetClasses().Contains("TJStrana"))
-                .Select(x => x.InnerHtml));
+        var todayNode = todayMenu
+            .SelectNodes("//p[contains(@class, 'weeklyDay')]")
+            .FirstOrDefault(node => node.InnerText.Equals(todayString, StringComparison.InvariantCultureIgnoreCase));
 
-        var start = todayNode.IndexOf(todayString, StringComparison.Ordinal) + 13;
+        var foodNodes = todayNode.ParentNode
+            .SelectNodes("//tr[contains(@class, 'menuPageMealName')]");
 
-        var body = todayNode.Substring(start, todayNode.Length - start);
-
-        var soupString = Regex.Match(body, "Polévky:<br>.+?(?=(1.))");
-
-        foreach (Match item in Regex.Matches(soupString.Value, "[r]>.+?(?=<[bs])"))
+        foreach (var foodNode in foodNodes)
         {
             var newItem = new RestaurantMenuItem
             {
-                FoodType = FoodType.Soup,
-                Description = item.Value[2..]
+                FoodType = FoodType.Main,
+                Description = foodNode.ChildNodes[2].InnerText,
+                Price = foodNode.ChildNodes[3].InnerText
             };
 
             result.Add(newItem);
-        }
-
-        var matches = Regex.Matches(body, "<b>.+?<\\/b>");
-
-        foreach (Match match in matches)
-        {
-            var item = new RestaurantMenuItem
-            {
-                FoodType = FoodType.Main,
-                Price = Regex.Match(match.Value, "(?='>)(.*)(?=</span)").Value.Substring(2),
-                Description = Regex.Match(match.Value, "(?=<b>)(.+?)(?=<span)").Value.Substring(3) + "  "
-            };
-
-            result.Add(item);
-
-            if (item.Description.Contains("Mix"))
-                break;
         }
 
         return result;

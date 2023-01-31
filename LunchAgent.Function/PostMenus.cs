@@ -27,8 +27,11 @@ public static class PostMenus
             throw new Exception("Google credentials cannot be null");
 
         var restaurantService = new RestaurantService();
-        var googleChatService = new GoogleChatService(googleCreds);
         var menuReadingService = new MenuReadingService(logger);
+
+        menuReadingService.GetMenus(restaurantService.Get());
+        
+        var googleChatService = new GoogleChatService(googleCreds);
         var storedMessagesService = new StoredMessagesService(storageAccountConnectionString);
 
         var menuPostingService = new MenuPostingService(logger, restaurantService, menuReadingService,

@@ -2,6 +2,7 @@
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <AzureFunctionsVersion>V4</AzureFunctionsVersion>
+        <UserSecretsId>671e14df-62de-49cd-aa29-3bfc5a9e031c</UserSecretsId>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Google.Apis.Auth" Version="1.58.0" />

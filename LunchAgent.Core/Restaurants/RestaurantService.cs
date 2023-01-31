@@ -10,28 +10,18 @@ public class RestaurantService : IRestaurantService
         {
             new()
             {
-                Name = "Canada",
-                Url = "http://www.menicka.cz/api/iframe/?id=6&bg=vhite&color=black&size=18&datum=dnes"
+                Name = "Makalu",
+                Url = "https://nepalska-restaurace-makalu.cz/zlin/weekly"
             },
             new()
             {
-                Name = "Flip",
-                Url = "http://www.menicka.cz/api/iframe/?id=24&bg=vhite&color=black&size=18&datum=dnes"
+                Name = "Prostě restaurace",
+                Url = "http://www.menicka.cz/api/iframe/?id=8250&bg=vhite&color=black&size=18&datum=dnes"
             },
             new()
             {
                 Name = "Puor",
                 Url = "http://www.menicka.cz/api/iframe/?id=2992&bg=vhite&color=black&size=18&datum=dnes"
-            },
-            new()
-            {
-                Name = "Celnice",
-                Url = "http://www.menicka.cz/api/iframe/?id=17&bg=vhite&color=black&size=18&datum=dnes"
-            },
-            new()
-            {
-                Name = "Budvarka",
-                Url = "http://www.menicka.cz/api/iframe/?id=5881&bg=vhite&color=black&size=18&datum=dnes"
             },
             new()
             {
@@ -45,8 +35,23 @@ public class RestaurantService : IRestaurantService
             },
             new()
             {
-                Name = "Prostě restaurace",
-                Url = "http://www.menicka.cz/api/iframe/?id=8250&bg=vhite&color=black&size=18&datum=dnes"
+                Name = "Flip",
+                Url = "http://www.menicka.cz/api/iframe/?id=24&bg=vhite&color=black&size=18&datum=dnes"
+            },
+            new()
+            {
+                Name = "Canada",
+                Url = "http://www.menicka.cz/api/iframe/?id=6&bg=vhite&color=black&size=18&datum=dnes"
+            },
+            new()
+            {
+                Name = "Celnice",
+                Url = "http://www.menicka.cz/api/iframe/?id=17&bg=vhite&color=black&size=18&datum=dnes"
+            },
+            new()
+            {
+                Name = "Budvarka",
+                Url = "http://www.menicka.cz/api/iframe/?id=5881&bg=vhite&color=black&size=18&datum=dnes"
             }
         };
     }

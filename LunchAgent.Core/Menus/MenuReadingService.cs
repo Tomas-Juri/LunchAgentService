@@ -1,10 +1,10 @@
-﻿using System.Net;
-using System.Text;
-using System.Text.RegularExpressions;
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
 using LunchAgent.Core.Menus.Entities;
 using LunchAgent.Core.Restaurants.Entitties;
 using Microsoft.Extensions.Logging;
+using System.Net;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace LunchAgent.Core.Menus;
 
@@ -109,30 +109,29 @@ public class MenuReadingService : IMenuReadingService
 
     private static List<RestaurantMenuItem> ParseMenuFromMakalu(HtmlNode todayMenu)
     {
-        var result = new List<RestaurantMenuItem>();
-
         var todayString = GetTodayInCzech();
 
-        var todayNode = todayMenu
-            .SelectNodes("//p[contains(@class, 'weeklyDay')]")
-            .FirstOrDefault(node => node.InnerText.Equals(todayString, StringComparison.InvariantCultureIgnoreCase));
+        var menuNodes = todayMenu.Descendants("div")
+            .Where(node => node.HasClass("weeklyDayCont"))
+            .Where(node => node.InnerText.Contains(todayString, StringComparison.InvariantCultureIgnoreCase))
+            .SelectMany(node => node.Descendants())
+            .Where(node => node.HasClass("menuPageMealName"));
 
-        var foodNodes = todayNode.ParentNode
-            .SelectNodes("//tr[contains(@class, 'menuPageMealName')]");
-
-        foreach (var foodNode in foodNodes)
+        var menuItems = menuNodes.Select(node =>
         {
-            var newItem = new RestaurantMenuItem
+            var childNodes = node.Descendants("td").ToList();
+            var isSoup = node.InnerText.Contains("polévka", StringComparison.InvariantCultureIgnoreCase);
+
+            return new RestaurantMenuItem
             {
-                FoodType = FoodType.Main,
-                Description = foodNode.ChildNodes[2].InnerText,
-                Price = foodNode.ChildNodes[3].InnerText
+                FoodType = isSoup ? FoodType.Soup : FoodType.Main,
+                Index = isSoup ? string.Empty : childNodes[0].InnerText.Trim(),
+                Description = childNodes[isSoup ? 0 : 1].InnerText.Trim() + (isSoup ? " / " + childNodes[1].InnerText.Trim() : " " + childNodes[2].InnerText.Trim()),
+                Price = isSoup ? string.Empty : childNodes[3].InnerText.Trim()
             };
+        }).ToList();
 
-            result.Add(newItem);
-        }
-
-        return result;
+        return menuItems;
     }
 
     private static string GetTodayInCzech()

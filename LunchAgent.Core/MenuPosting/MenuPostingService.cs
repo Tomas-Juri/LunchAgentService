@@ -40,8 +40,8 @@ public class MenuPostingService : IMenuPostingService
         _logger.LogInformation("Getting available spaces.");
         var spaces = await _googleChatService.GetSpaces();
 
-        spaces = spaces.Where(x => x.DisplayName == "Lunch Agent ZL - TEST").ToList();
-        
+        spaces = spaces.Where(x => x.DisplayName == "_Lunch Agent ZL - TEST").ToList();
+
         _logger.LogInformation("Start sending messages.");
         foreach (var space in spaces)
         {
@@ -82,7 +82,7 @@ public class MenuPostingService : IMenuPostingService
 
             var items = string.Join("\n", soups, mains).Trim('\n');
 
-            result.Add($"*{menu.Restaurant.Name}:* \n {items}");
+            result.Add($"{menu.Restaurant.Emoji} *{menu.Restaurant.Name}:* \n {items}");
         }
 
         return string.Join("\n\n", result);
